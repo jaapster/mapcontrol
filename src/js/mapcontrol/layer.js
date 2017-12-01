@@ -39,7 +39,11 @@ export class Layer extends EventEmitter {
 	_onVectorTileMessage({ tile, pos }: VectorTileMessage) {
 		const buffer = Context2d.create();
 
-		this._styles.forEach(s => renderVectorData(tile.layers[s.layer], buffer, s));
+		this._styles
+			.filter((s) => {
+				return (!s.minZoom || s.minZoom <= pos.z) && (!s.maxZoom || s.maxZoom >= pos.z);
+			})
+			.forEach(s => renderVectorData(tile.layers[s.layer], buffer, s));
 		this._cache[makeCacheKey(pos)] = buffer.getImageData(0, 0, this._size, this._size);
 
 		this.trigger('tile', pos);

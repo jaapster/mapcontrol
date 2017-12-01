@@ -10,7 +10,6 @@ import type { Position3d, SourceProps } from './type';
 
 export class Source extends EventEmitter {
 	_id: string;
-	_type: string;
 	_cache: { [string]: any };
 	_servers: string[];
 	_serverIndex: number;
@@ -24,7 +23,6 @@ export class Source extends EventEmitter {
 		super();
 
 		this._id = props.id;
-		this._type = props.type;
 		this._servers = props.tiles;
 		this._cache = {};
 		this._serverIndex = 0;
@@ -37,7 +35,7 @@ export class Source extends EventEmitter {
 		return this._id;
 	}
 
-	get currentServer(): string {
+	get server(): string {
 		this._serverIndex += 1;
 
 		if (this._serverIndex > this._servers.length - 1) {
@@ -61,10 +59,7 @@ export class Source extends EventEmitter {
 			return this._cache[key];
 		}
 
-		this._worker.postMessage({
-			pos,
-			url: makeUrl(this.currentServer, pos)
-		});
+		this._worker.postMessage({ pos, url: makeUrl(this.server, pos) });
 
 		return null;
 	}

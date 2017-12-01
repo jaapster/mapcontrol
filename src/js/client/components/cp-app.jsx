@@ -21,6 +21,7 @@ const styles = [
 	{
 		type: 'line',
 		layer: 'transportation',
+		minZoom: 10,
 		paint: {
 			color: '#666'
 		}
@@ -45,6 +46,7 @@ const styles = [
 		type: 'line',
 		layer: 'transportation',
 		class: 'primary',
+		minZoom: 10,
 		paint: {
 			color: '#990'
 		}
@@ -52,6 +54,7 @@ const styles = [
 		type: 'line',
 		layer: 'transportation',
 		class: 'secondary',
+		minZoom: 12,
 		paint: {
 			color: '#770'
 		}
