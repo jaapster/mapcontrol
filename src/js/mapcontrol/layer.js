@@ -12,7 +12,8 @@ export type LayerProps = {
 	source: Source,
 	type: string,
 	size?: number,
-	styles?: Array<Object>
+	styles?: Array<Object>,
+	onTileLoaded: Function
 }
 
 export class Layer {
@@ -22,6 +23,7 @@ export class Layer {
 	_size: number;
 	_cache: { [string]: ?ImageData };
 	_styles: Array<Object>;
+	_onTileLoaded: Function;
 
 	static create(props: LayerProps) {
 		return new Layer(props);
@@ -34,34 +36,38 @@ export class Layer {
 		this._size = props.size || DEFAULT_SIZE;
 		this._styles = props.styles || [];
 		this._cache = {};
+		this._onTileLoaded = props.onTileLoaded;
 	}
 
 	get type(): string {
 		return this._type;
 	}
 
-	async render(pos: Position3d) {
+	render(pos: Position3d) {
 		const { x, y, z } = pos;
 		const key = makeCacheKey(x, y, z);
 
-		if (!this._cache[key]) {
-			const buffer = Context2d.create();
+		if (this._cache[key]) {
+			return this._cache[key];
+		}
 
-			// check if the tile position exists at the detail level ...
-			if (isValidTilePosition(pos)) {
-				if (this._type === 'raster') {
-					buffer.drawImage(await this._source.getTile(x, y, z), 0, 0);
-				} else if (this._styles.length) {
-					const vectorTile = await this._source.getTile(x, y, z);
+		const buffer = Context2d.create();
+
+		// check if the tile position exists at the detail level ...
+		if (isValidTilePosition(pos)) {
+			if (this._type === 'raster') {
+				// buffer.drawImage(await this._source.getTile(x, y, z), 0, 0);
+			} else if (this._styles.length) {
+				this._source.getTile(x, y, z).then((vectorTile) => {
 					this._styles.forEach((style) => {
 						renderVectorData(vectorTile.layers[style.layer], buffer, style);
 					});
-				}
+					this._cache[key] = buffer.getImageData(0, 0, this._size, this._size);
+					this._onTileLoaded(pos);
+				});
 			}
-
-			this._cache[key] = buffer.getImageData(0, 0, this._size, this._size);
 		}
 
-		return this._cache[key];
+		return buffer.getImageData(0, 0, this._size, this._size);
 	}
 }

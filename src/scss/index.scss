@@ -11,13 +11,3 @@ body {
 	width: 1024px;
 	height: 1024px;
 }
-
-.rectangle {
-	position: absolute;
-	width: 256px;
-	height: 256px;
-	top: 128px;
-	left: 128px;
-	border: 1px solid red;
-	pointer-events: none;
-}

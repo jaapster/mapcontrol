@@ -1,5 +1,7 @@
 // @flow
 
+import { DEFAULT_SIZE } from './constants';
+
 export class Context2d {
 	_canvas: HTMLCanvasElement;
 	_ctx: ?CanvasRenderingContext2D;
@@ -11,8 +13,8 @@ export class Context2d {
 	constructor(canvas: ?HTMLCanvasElement) {
 		if (!canvas) {
 			this._canvas = document.createElement('canvas');
-			this._canvas.width = 256;
-			this._canvas.height = 256;
+			this._canvas.width = DEFAULT_SIZE;
+			this._canvas.height = DEFAULT_SIZE;
 		} else {
 			this._canvas = canvas;
 		}

@@ -256,22 +256,29 @@ export class Map {
 			this._layers = this._layers.concat(Layer.create({
 				source,
 				type: props.type,
-				styles: props.styles
+				styles: props.styles,
+				onTileLoaded: (pos: Position3d) => this._renderTile(pos)
 			}));
 		}
 	}
 
 	render() {
-		const tilePositions = this.tilePositions;
-
-		this._layers.forEach((layer) => {
-			tilePositions.forEach(async (pos) => {
-				const imgData = await layer.render(pos);
-				const { x, y } = this.centerPixel;
-				const xpos = (pos.x * DIM) + this._offset[0] + x;
-				const ypos = (pos.y * DIM) + this._offset[1] + y;
-				this._canvas.ctx.putImageData(imgData, xpos, ypos);
-			});
+		this.tilePositions.forEach((pos) => {
+			this._renderTile(pos);
 		});
+	}
+
+	_renderTile(pos: Position3d) {
+		this._layers.forEach((layer) => {
+			this._renderLayerTile(layer, pos);
+		});
+	}
+
+	async _renderLayerTile(layer: Layer, pos: Position3d) {
+		const imgData = layer.render(pos);
+		const { x, y } = this.centerPixel;
+		const xpos = (pos.x * DIM) + this._offset[0] + x;
+		const ypos = (pos.y * DIM) + this._offset[1] + y;
+		this._canvas.ctx.putImageData(imgData, xpos, ypos);
 	}
 }

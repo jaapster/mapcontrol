@@ -4,6 +4,7 @@ import type { VectorTileLayer } from 'vector-tile';
 import type { Context2d } from './context-2d';
 
 import { translate } from './translate';
+import { DEFAULT_SIZE } from './constants';
 
 export function renderCircle(layer: VectorTileLayer, ctx: Context2d, style: Object) {
 	ctx.beginPath();
@@ -17,7 +18,7 @@ export function renderCircle(layer: VectorTileLayer, ctx: Context2d, style: Obje
 			const geo = feature.loadGeometry();
 
 			geo.forEach((subgeo) => {
-				const { x, y } = translate(feature.extent, 256)(subgeo[0]);
+				const { x, y } = translate(feature.extent, DEFAULT_SIZE)(subgeo[0]);
 
 				ctx.moveTo(x + r, y);
 				ctx.arc(x, y, r, 0, 2 * Math.PI, false);

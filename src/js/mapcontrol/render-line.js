@@ -4,6 +4,7 @@ import type { VectorTileLayer } from 'vector-tile';
 import type { Context2d } from './context-2d';
 
 import { translate } from './translate';
+import { DEFAULT_SIZE } from './constants';
 
 export function renderLine(layer: VectorTileLayer, ctx: Context2d, style: Object) {
 	ctx.strokeStyle = style.paint.color;
@@ -19,7 +20,7 @@ export function renderLine(layer: VectorTileLayer, ctx: Context2d, style: Object
 
 			geo.forEach((subgeo) => {
 				subgeo
-					.map(translate(feature.extent, 256))
+					.map(translate(feature.extent, DEFAULT_SIZE))
 					.forEach(({ x, y }, pointIndex) => {
 						if (!pointIndex) {
 							ctx.moveTo(x, y);

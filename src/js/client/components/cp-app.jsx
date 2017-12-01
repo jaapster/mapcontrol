@@ -108,7 +108,7 @@ export function App() {
 		<MapControl
 			sources={sources}
 			layers={layers}
-			zoom={12}
+			zoom={11}
 			center={CENTER.HONGKONG}
 		/>
 	);
