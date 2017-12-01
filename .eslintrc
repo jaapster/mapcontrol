@@ -27,7 +27,8 @@
     "jsx-a11y/no-static-element-interactions": 0,
     "jsx-a11y/show-errors": 0,
     "jsx-a11y/no-noninteractive-element-interactions": 0,
-    "import/prefer-default-export": 0
+    "import/prefer-default-export": 0,
+    "import/first": 0
   },
 
   "settings": {

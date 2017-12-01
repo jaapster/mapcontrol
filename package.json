@@ -66,6 +66,7 @@
     "source-map-support": "^0.4.15",
     "style-loader": "^0.18.0",
     "transform-loader": "^0.2.4",
-    "webpack": "^2.5.1"
+    "webpack": "^2.5.1",
+    "worker-loader": "^1.1.0"
   }
 }

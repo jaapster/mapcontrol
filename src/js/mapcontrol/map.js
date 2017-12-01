@@ -6,27 +6,7 @@ import { Layer } from './layer';
 import { hasId } from './fn';
 import { DEFAULT_SIZE, CS_LIMIT, TILE_BUFFER } from './constants';
 
-import type { SourceType } from './source';
-import type { Position2d, Position3d, Coordinate } from './type';
-
-export type SourceData = {
-	id: string,
-	type: SourceType,
-	tiles: string[]
-}
-
-export type LayerData = {
-	id: string,
-	type: string,
-	source: string,
-	styles?: Array<Object>
-}
-
-export type MapProps = {
-	container?: HTMLElement,
-	zoom?: number,
-	center?: [number, number]
-}
+import type { Position2d, Position3d, Coordinate, SourceData, LayerData, MapProps } from './type';
 
 const DIM = DEFAULT_SIZE;
 
@@ -253,12 +233,16 @@ export class Map {
 		const source = this.getSource(props.source);
 
 		if (source) {
-			this._layers = this._layers.concat(Layer.create({
+			const layer = Layer.create({
 				source,
 				type: props.type,
 				styles: props.styles,
 				onTileLoaded: (pos: Position3d) => this._renderTile(pos)
-			}));
+			});
+
+			layer.on('tile', this._renderTile.bind(this));
+
+			this._layers = this._layers.concat(layer);
 		}
 	}
 
@@ -276,9 +260,12 @@ export class Map {
 
 	async _renderLayerTile(layer: Layer, pos: Position3d) {
 		const imgData = layer.render(pos);
-		const { x, y } = this.centerPixel;
-		const xpos = (pos.x * DIM) + this._offset[0] + x;
-		const ypos = (pos.y * DIM) + this._offset[1] + y;
-		this._canvas.ctx.putImageData(imgData, xpos, ypos);
+
+		if (imgData) {
+			const { x, y } = this.centerPixel;
+			const xpos = (pos.x * DIM) + this._offset[0] + x;
+			const ypos = (pos.y * DIM) + this._offset[1] + y;
+			this._canvas.ctx.putImageData(imgData, xpos, ypos);
+		}
 	}
 }

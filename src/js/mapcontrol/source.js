@@ -1,42 +1,40 @@
 // @flow
 
-import axios from 'axios';
 import Protobuf from 'pbf';
 import { VectorTile } from 'vector-tile';
-import { makeCacheKey } from './fn';
+import { EventEmitter } from './event-emitter';
+import { makeCacheKey, makeUrl } from './fn';
+import TileRequestWorker from './tile-request.worker';
 
-export type SourceType = 'raster';
+import type { Position3d, SourceProps } from './type';
 
-export type SourceProps = {
-	id: string,
-	type: SourceType,
-	tiles: string[]
-}
-
-function makeUrl(template: string, x: number, y: number, z: number): string {
-	return template
-		.replace('{x}', x.toString())
-		.replace('{y}', y.toString())
-		.replace('{z}', z.toString());
-}
-
-export class Source {
+export class Source extends EventEmitter {
 	_id: string;
-	_type: SourceType;
+	_type: string;
 	_cache: { [string]: any };
 	_servers: string[];
 	_serverIndex: number;
+	_worker: TileRequestWorker;
 
 	static create(props: SourceProps): Source {
 		return new Source(props);
 	}
 
 	constructor(props: SourceProps) {
+		super();
+
 		this._id = props.id;
 		this._type = props.type;
 		this._servers = props.tiles;
 		this._cache = {};
 		this._serverIndex = 0;
+		this._worker = new TileRequestWorker();
+
+		this._worker.onmessage = this._onWorkerMessage.bind(this);
+	}
+
+	get id(): string {
+		return this._id;
 	}
 
 	get currentServer(): string {
@@ -49,36 +47,25 @@ export class Source {
 		return this._servers[this._serverIndex];
 	}
 
-	async getTile(x: number, y: number, z: number): Promise<any> {
-		const key = makeCacheKey(x, y, z);
+	_onWorkerMessage({ data: { data, pos } }: Object) {
+		const key = makeCacheKey(pos);
 
-		if (!this._cache[key]) {
-			if (this._type === 'raster') {
-				const img = new Image();
+		this._cache[key] = new VectorTile(new Protobuf(data));
+		this.trigger('vector-tile', { pos, tile: this._cache[key] });
+	}
 
-				img.crossOrigin = 'Anonymous';
-				img.src = makeUrl(this.currentServer, x, y, z);
+	async getTile(pos: Position3d): ?any {
+		const key = makeCacheKey(pos);
 
-				this._cache[key] = await new Promise((resolve) => {
-					img.onload = () => resolve(img);
-				});
-			} else if (this._type === 'vector') {
-				const pbf = await axios.get(makeUrl(this.currentServer, x, y, z), {
-					responseType: 'arraybuffer'
-				});
-
-				this._cache[key] = new VectorTile(new Protobuf(pbf.data));
-			}
+		if (this._cache[key]) {
+			return this._cache[key];
 		}
 
-		return this._cache[key];
-	}
+		this._worker.postMessage({
+			pos,
+			url: makeUrl(this.currentServer, pos)
+		});
 
-	hasTile(x: number, y: number, z: number): boolean {
-		return !!this._cache[makeCacheKey(x, y, z)];
-	}
-
-	get id(): string {
-		return this._id;
+		return null;
 	}
 }

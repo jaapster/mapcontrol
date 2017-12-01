@@ -90,7 +90,7 @@ const sources = [
 		id: vectorSourceId,
 		type: 'vector',
 		tiles: [
-			'http://localhost:32779/data/v3/{z}/{x}/{y}.pbf'
+			'http://localhost:32777/data/v3/{z}/{x}/{y}.pbf'
 		]
 	}
 ];
