@@ -75,6 +75,12 @@ export class Context2d {
 		}
 	}
 
+	fillRect(x: number, y: number, h: number, w: number) {
+		if (this._ctx) {
+			this._ctx.fillRect(x, y, h, w);
+		}
+	}
+
 	drawImage(img: Image, x: number = 0, y: number = 0) {
 		if (this._ctx) {
 			this._ctx.drawImage(img, x, y);

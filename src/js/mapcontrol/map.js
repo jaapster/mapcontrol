@@ -1,5 +1,8 @@
 // @flow
 
+import bind from 'autobind-decorator';
+import { EventEmitter } from './event-emitter';
+import { Context2d } from './context-2d';
 import { Canvas } from './canvas';
 import { Source } from './source';
 import { Layer } from './layer';
@@ -10,7 +13,7 @@ import type { Position2d, Position3d, Coordinate, SourceData, LayerData, MapProp
 
 const DIM = DEFAULT_SIZE;
 
-export class Map {
+export class Map extends EventEmitter {
 	_container: ?HTMLElement;
 	_canvas: Canvas;
 	_sources: Array<Source>;
@@ -22,15 +25,16 @@ export class Map {
 		return new Map(props);
 	}
 
-	_offset = [0, 0];
-
 	constructor(props?: MapProps = {}) {
+		super();
+
 		const { container, zoom, center } = props;
 
 		this._canvas = Canvas.create({ width: 10, height: 10 });
 		this._sources = [];
 		this._layers = [];
 		this._zoomLevel = zoom || 1;
+		this._offset = [0, 0];
 
 		if (container) {
 			this._container = container;
@@ -51,6 +55,15 @@ export class Map {
 		this._canvas.on('dblclick', (e) => {
 			const { originalEvent: { clientX, clientY, shiftKey } } = e;
 			if (!shiftKey) {
+				this.zoomIn([clientX, clientY]);
+			} else {
+				this.zoomOut([clientX, clientY]);
+			}
+		});
+
+		this._canvas.on('wheel', (e) => {
+			const { direction, originalEvent: { clientX, clientY } } = e;
+			if (direction < 0) {
 				this.zoomIn([clientX, clientY]);
 			} else {
 				this.zoomOut([clientX, clientY]);
@@ -125,11 +138,13 @@ export class Map {
 		return (2 ** this.zoom) * DIM;
 	}
 
+	// returns the number of cs units per map tile
 	get unitsPerTile(): number {
 		// twice the cs limit divided by the number of tiles on the current zoomlevel
 		return (CS_LIMIT * 2) / (2 ** this.zoom);
 	}
 
+	// returns the number of cs units per screen pixel
 	get unitsPerPixel(): number {
 		// the number of units per tile divided by the tile size in pixels
 		return this.unitsPerTile / DIM;
@@ -177,7 +192,11 @@ export class Map {
 		this.center = [0, 0];
 	}
 
-	zoomIn(focus: ?Coordinate) {
+	zoomIn(focus: ?Coordinate, amount: ?number) {
+		if (!amount) {
+			amount = 1;
+		}
+
 		const { width, height } = this._canvas.dimensions;
 		const center = [width / 2, height / 2];
 
@@ -189,17 +208,25 @@ export class Map {
 		const [cx, cy] = center;
 		const [dx, dy] = [cx - fx, cy - fy];
 
-		this._zoomLevel += 1;
+		this._zoomLevel += amount;
 
 		this._offset = [
-			((this._offset[0] + dx) * 2) - dx,
-			((this._offset[1] + dy) * 2) - dy
+			((this._offset[0] + dx) * (2 ** amount)) - dx,
+			((this._offset[1] + dy) * (2 ** amount)) - dy
 		];
 
 		this.render();
 	}
 
-	zoomOut(focus: ?Coordinate) {
+	zoomOut(focus: ?Coordinate, amount: ?number) {
+		if (!amount) {
+			amount = 1;
+		}
+
+		if (this._zoomLevel - amount < 0) {
+			return;
+		}
+
 		const { width, height } = this._canvas.dimensions;
 		const center = [width / 2, height / 2];
 
@@ -211,11 +238,11 @@ export class Map {
 		const [cx, cy] = center;
 		const [dx, dy] = [cx - fx, cy - fy];
 
-		this._zoomLevel -= 1;
+		this._zoomLevel -= amount;
 
 		this._offset = [
-			((this._offset[0] + dx) / 2) - dx,
-			((this._offset[1] + dy) / 2) - dy
+			((this._offset[0] + dx) / (2 ** amount)) - dx,
+			((this._offset[1] + dy) / (2 ** amount)) - dy
 		];
 
 		this.render();
@@ -247,15 +274,14 @@ export class Map {
 	}
 
 	render() {
-		this.tilePositions.forEach((pos) => {
-			this._renderTile(pos);
-		});
+		this.tilePositions.forEach(this._renderTile);
+
+		this.trigger('update');
 	}
 
+	@bind
 	_renderTile(pos: Position3d) {
-		this._layers.forEach((layer) => {
-			this._renderLayerTile(layer, pos);
-		});
+		this._layers.forEach(layer => this._renderLayerTile(layer, pos));
 	}
 
 	async _renderLayerTile(layer: Layer, pos: Position3d) {
@@ -265,6 +291,7 @@ export class Map {
 			const { x, y } = this.centerPixel;
 			const xpos = (pos.x * DIM) + this._offset[0] + x;
 			const ypos = (pos.y * DIM) + this._offset[1] + y;
+
 			this._canvas.ctx.putImageData(imgData, xpos, ypos);
 		}
 	}

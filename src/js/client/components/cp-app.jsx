@@ -3,7 +3,7 @@
 import React from 'react';
 import { MapControl } from './cp-map-control';
 
-const styles = [
+const styles1 = [
 	{
 		type: 'fill',
 		layer: 'water',
@@ -21,7 +21,7 @@ const styles = [
 	{
 		type: 'line',
 		layer: 'transportation',
-		minZoom: 10,
+		min: 10,
 		paint: {
 			color: '#666'
 		}
@@ -46,7 +46,7 @@ const styles = [
 		type: 'line',
 		layer: 'transportation',
 		class: 'primary',
-		minZoom: 10,
+		min: 10,
 		paint: {
 			color: '#990'
 		}
@@ -54,11 +54,15 @@ const styles = [
 		type: 'line',
 		layer: 'transportation',
 		class: 'secondary',
-		minZoom: 12,
+		min: 12,
 		paint: {
 			color: '#770'
 		}
-	}, {
+	}
+];
+
+const styles2 = [
+	{
 		type: 'text',
 		layer: 'place',
 		class: 'city',
@@ -93,7 +97,7 @@ const sources = [
 		id: vectorSourceId,
 		type: 'vector',
 		tiles: [
-			'http://localhost:32777/data/v3/{z}/{x}/{y}.pbf'
+			'http://localhost:1981/data/v3/{z}/{x}/{y}.pbf'
 		]
 	}
 ];
@@ -102,8 +106,13 @@ const layers = [
 	{
 		source: vectorSourceId,
 		type: 'vector',
-		styles
-	}
+		styles: styles1.concat(styles2)
+	} // ,
+	// {
+	// 	source: vectorSourceId,
+	// 	type: 'vector',
+	// 	styles: styles2
+	// }
 ];
 
 export function App() {

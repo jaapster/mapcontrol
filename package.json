@@ -6,13 +6,13 @@
     "start": "node ./src/js/server/index.js",
     "build": "webpack --progress --colors && cp src/html/*.* dist",
     "eslint": "node ./node_modules/eslint/bin/eslint ./src/js",
-    "watch": "webpack --progress --colors --watch"
+    "watch": "webpack --progress --colors --watch",
+	"tileserver": "cd ~/Documents/Kitematic/tileserver-gl/data && docker run --rm -it -v $(pwd):/data -p 1981:80 klokantech/tileserver-gl"
   },
   "dependencies": {
-    "autobind-decorator": "^1.4.1",
+    "autobind-decorator": "^1.4.3",
     "axios": "^0.16.2",
     "express": "^4.15.3",
-    "http-proxy-middleware": "^0.17.4",
     "pbf": "^3.1.0",
     "prop-types": "^15.5.10",
     "ramda": "^0.24.1",

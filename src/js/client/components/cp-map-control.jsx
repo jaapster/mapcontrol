@@ -4,9 +4,17 @@ import React from 'react';
 import { Map } from '../../mapcontrol/map';
 
 export class MapControl extends React.Component {
+	state = {
+		center: [0, 0]
+	};
+
 	componentDidMount() {
 		const { zoom, center } = this.props;
 		this._map = Map.create({ container: this._container, zoom, center });
+
+		this._map.on('update', () => {
+			this.setState({ center: this._map.center });
+		});
 
 		if (this.props.sources) {
 			this.props.sources.forEach((source) => {
@@ -31,9 +39,14 @@ export class MapControl extends React.Component {
 			this._container = element;
 		};
 
+		const [x, y] = this.state.center;
+
 		return (
-			<div>
+			<div className="mapcontrol">
 				<div className="mapcontrol-container" ref={setContainer} />
+				<p className="center-coordinate">{ x } { y }</p>
+				<div className="guide guide-vertical" />
+				<div className="guide guide-horizontal" />
 			</div>
 		);
 	}

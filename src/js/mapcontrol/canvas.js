@@ -62,6 +62,14 @@ export class Canvas extends EventEmitter {
 				originalEvent: e
 			});
 		});
+
+		this._canvasElement.addEventListener('wheel', (e: WheelEvent) => {
+			this.trigger('wheel', {
+				type: 'wheel',
+				originalEvent: e,
+				direction: e.deltaY > 0 ? 1 : -1
+			});
+		});
 	}
 
 	appendTo(container: HTMLElement) {

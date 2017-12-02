@@ -9,8 +9,10 @@ import { renderText } from './render-text';
 
 import type { Context2d } from './context-2d';
 
-export function renderVectorData(layer: VectorTileLayer, ctx: Context2d, style: Object) {
-	if (layer) {
+export function renderVectorData(layer: VectorTileLayer, ctx: Context2d, style: Object, zoom: number) {
+	const { min, max } = style;
+
+	if (layer && (!min || min <= zoom) && (!max || max >= zoom)) {
 		if (style.type === 'text') {
 			renderText(layer, ctx, style);
 		} else if (style.type === 'fill') {

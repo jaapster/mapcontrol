@@ -1,5 +1,6 @@
 // @flow
 
+import bind from 'autobind-decorator';
 import { Context2d } from './context-2d';
 import { EventEmitter } from './event-emitter';
 import { DEFAULT_SIZE } from './constants';
@@ -15,6 +16,7 @@ export class Layer extends EventEmitter {
 	_size: number;
 	_cache: { [string]: ?ImageData };
 	_styles: Array<Object>;
+	_empty: ?ImageData;
 
 	static create(props: LayerProps) {
 		return new Layer(props);
@@ -29,24 +31,36 @@ export class Layer extends EventEmitter {
 		this._styles = props.styles || [];
 		this._cache = {};
 
-		this._source.on('vector-tile', this._onVectorTileMessage.bind(this));
+		this._source.on('vector-tile', this._onVectorTile);
+
+		const buffer = Context2d.create();
+
+		buffer.fillStyle = '#000';
+		buffer.fillRect(0, 0, this._size, this._size);
+
+		this._empty = buffer.getImageData(0, 0, this._size, this._size);
 	}
 
 	get type(): string {
 		return this._type;
 	}
 
-	_onVectorTileMessage({ tile, pos }: VectorTileMessage) {
+	@bind
+	_onVectorTile({ tile, pos }: VectorTileMessage) {
+		this._renderTile({ tile, pos });
+		this.trigger('tile', pos);
+	}
+
+	_renderTile({ tile, pos }: VectorTileMessage) {
 		const buffer = Context2d.create();
+		const key = makeCacheKey(pos);
 
 		this._styles
-			.filter((s) => {
-				return (!s.minZoom || s.minZoom <= pos.z) && (!s.maxZoom || s.maxZoom >= pos.z);
-			})
-			.forEach(s => renderVectorData(tile.layers[s.layer], buffer, s));
-		this._cache[makeCacheKey(pos)] = buffer.getImageData(0, 0, this._size, this._size);
+			.forEach(s =>
+				renderVectorData(tile.layers[s.layer], buffer, s, pos.z)
+			);
 
-		this.trigger('tile', pos);
+		this._cache[key] = buffer.getImageData(0, 0, this._size, this._size);
 	}
 
 	render(pos: Position3d): ?ImageData {
@@ -54,10 +68,27 @@ export class Layer extends EventEmitter {
 
 		if (this._cache[key]) {
 			return this._cache[key];
-		} else if (isValidTilePosition(pos) && this._styles.length) {
-			this._source.getTile(pos);
 		}
 
-		return null;
+		if (pos.z > 14) {
+			console.log('overzoom'); // todo: remove
+			return null;
+		}
+
+		if (pos.z < 0) {
+			console.log('underzoom'); // todo: remove
+			return null;
+		}
+
+		if (isValidTilePosition(pos) && this._styles.length) {
+			const tile = this._source.getTile(pos);
+
+			if (tile) {
+				this._renderTile({ tile, pos });
+				return this._cache[key];
+			}
+		}
+
+		return null; // this._empty;
 	}
 }
