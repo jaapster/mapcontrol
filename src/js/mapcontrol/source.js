@@ -20,6 +20,10 @@ export class Source extends EventEmitter {
 		return new Source(props);
 	}
 
+	static EVENT = {
+		TILE: 'tile'
+	};
+
 	constructor(props: SourceProps) {
 		super();
 
@@ -52,18 +56,16 @@ export class Source extends EventEmitter {
 
 		this._cache[key] = new VectorTile(new Protobuf(data));
 
-		this.trigger('vector-tile', { pos, tile: this._cache[key] });
+		this.trigger(Source.EVENT.TILE, { pos, tile: this._cache[key] });
 	}
 
-	getTile(pos: Position3d): ?any {
+	loadTile(pos: Position3d): ?any {
 		const key = makeCacheKey(pos);
 
 		if (this._cache[key]) {
-			return this._cache[key];
+			this.trigger(Source.EVENT.TILE, { pos, tile: this._cache[key] });
+		} else {
+			this._worker.postMessage({ pos, url: makeUrl(this.server, pos) });
 		}
-
-		this._worker.postMessage({ pos, url: makeUrl(this.server, pos) });
-
-		return null;
 	}
 }

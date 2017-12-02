@@ -22,6 +22,12 @@ export class Canvas extends EventEmitter {
 		return new Canvas(props);
 	}
 
+	static EVENT = {
+		DRAG: 'drag',
+		DBL_CLICK: 'dblclick',
+		WHEEL: 'wheel'
+	};
+
 	constructor(props: CanvasProps) {
 		super();
 
@@ -45,8 +51,8 @@ export class Canvas extends EventEmitter {
 
 		this._canvasElement.addEventListener('mousemove', (e: MouseEvent) => {
 			if (_mouseDown) {
-				this.trigger('drag', {
-					type: 'drag',
+				this.trigger(Canvas.EVENT.DRAG, {
+					type: Canvas.EVENT.DRAG,
 					originalEvent: e,
 					movement: {
 						x: e.movementX,
@@ -57,15 +63,15 @@ export class Canvas extends EventEmitter {
 		});
 
 		this._canvasElement.addEventListener('dblclick', (e: MouseEvent) => {
-			this.trigger('dblclick', {
-				type: 'dblclick',
+			this.trigger(Canvas.EVENT.DBL_CLICK, {
+				type: Canvas.EVENT.DBL_CLICK,
 				originalEvent: e
 			});
 		});
 
 		this._canvasElement.addEventListener('wheel', (e: WheelEvent) => {
-			this.trigger('wheel', {
-				type: 'wheel',
+			this.trigger(Canvas.EVENT.WHEEL, {
+				type: Canvas.EVENT.WHEEL,
 				originalEvent: e,
 				direction: e.deltaY > 0 ? 1 : -1
 			});

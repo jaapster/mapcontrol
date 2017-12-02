@@ -2,12 +2,12 @@
 
 import bind from 'autobind-decorator';
 import { Context2d } from './context-2d';
+import { Source } from './source';
 import { EventEmitter } from './event-emitter';
 import { DEFAULT_SIZE } from './constants';
-import { makeCacheKey, isValidTilePosition } from './fn';
+import { makeCacheKey } from './fn';
 import { renderVectorData } from './render-vector-data';
 
-import type { Source } from './source';
 import type { Position3d, LayerProps, VectorTileMessage } from './type';
 
 export class Layer extends EventEmitter {
@@ -31,7 +31,7 @@ export class Layer extends EventEmitter {
 		this._styles = props.styles || [];
 		this._cache = {};
 
-		this._source.on('vector-tile', this._onVectorTile);
+		this._source.on(Source.EVENT.TILE, this._onVectorTile);
 
 		const buffer = Context2d.create();
 
@@ -47,48 +47,27 @@ export class Layer extends EventEmitter {
 
 	@bind
 	_onVectorTile({ tile, pos }: VectorTileMessage) {
-		this._renderTile({ tile, pos });
-		this.trigger('tile', pos);
+		const key = makeCacheKey(pos);
+		this._cache[key] = tile;
+		this.trigger(key);
 	}
 
-	_renderTile({ tile, pos }: VectorTileMessage) {
-		const buffer = Context2d.create();
-		const key = makeCacheKey(pos);
-
+	_renderTile({ tile, pos }: VectorTileMessage, buffer: Context2d) {
 		this._styles
 			.forEach(s =>
 				renderVectorData(tile.layers[s.layer], buffer, s, pos.z)
 			);
-
-		this._cache[key] = buffer.getImageData(0, 0, this._size, this._size);
 	}
 
-	render(pos: Position3d): ?ImageData {
+	render(pos: Position3d, ctx: Context2d) {
 		const key = makeCacheKey(pos);
 
 		if (this._cache[key]) {
-			return this._cache[key];
+			this._renderTile({ tile: this._cache[key], pos }, ctx);
 		}
+	}
 
-		if (pos.z > 14) {
-			console.log('overzoom!'); // todo: remove
-			return null;
-		}
-
-		if (pos.z < 0) {
-			console.log('underzoom!'); // todo: remove
-			return null;
-		}
-
-		if (isValidTilePosition(pos) && this._styles.length) {
-			const tile = this._source.getTile(pos);
-
-			if (tile) {
-				this._renderTile({ tile, pos });
-				return this._cache[key];
-			}
-		}
-
-		return null;
+	tile(pos: Position3d) {
+		this._source.loadTile(pos);
 	}
 }

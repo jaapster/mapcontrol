@@ -12,7 +12,7 @@ export class MapControl extends React.Component {
 		const { zoom, center } = this.props;
 		this._map = Map.create({ container: this._container, zoom, center });
 
-		this._map.on('update', () => {
+		this._map.on(Map.EVENT.UPDATE, () => {
 			this.setState({ center: this._map.center });
 		});
 
@@ -29,6 +29,36 @@ export class MapControl extends React.Component {
 		}
 
 		this._map.render();
+
+		setTimeout(() => {
+			const styles2 = [
+				{
+					type: 'text',
+					layer: 'place',
+					class: 'city',
+					paint: {
+						color: '#fff',
+						offset: [0, 25]
+					}
+				}, {
+					type: 'circle',
+					layer: 'place',
+					class: 'city',
+					paint: {
+						radius: 6,
+						fillColor: '#f00',
+						strokeColor: '#fff',
+						strokeWidth: 2
+					}
+				}
+			];
+
+			this._map.addLayer({
+				source: 'vectorSource',
+				type: 'vector',
+				styles: styles2
+			});
+		}, 5000);
 	}
 
 	_container: HTMLElement;

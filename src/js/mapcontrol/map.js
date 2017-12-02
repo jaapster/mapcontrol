@@ -3,33 +3,15 @@
 import bind from 'autobind-decorator';
 import { EventEmitter } from './event-emitter';
 import { Canvas } from './canvas';
-import { Context2d } from './context-2d';
+import { Tile } from './tile';
 import { Source } from './source';
 import { Layer } from './layer';
-import { hasId, makeCacheKey } from './fn';
+import { hasId, makeCacheKey, isValidTilePosition } from './fn';
 import { DEFAULT_SIZE, CS_LIMIT, TILE_BUFFER } from './constants';
 
 import type { Position2d, Position3d, Coordinate, SourceData, LayerData, MapProps } from './type';
 
 const DIM = DEFAULT_SIZE;
-
-export class Tile extends EventEmitter {
-	_pos: Position3d;
-	_ctx: Context2d;
-	_layers: Layer[];
-
-	static create(pos: Position3d, layers: Layer[]) {
-		return new Tile(pos, layers);
-	}
-
-	constructor(pos: Position3d, layers: Layer[]) {
-		super();
-
-		this._pos = pos;
-		this._layers = layers;
-		this._ctx = Context2d.create();
-	}
-}
 
 export class Map extends EventEmitter {
 	_container: ?HTMLElement;
@@ -43,6 +25,10 @@ export class Map extends EventEmitter {
 	static create(props?: MapProps): Map {
 		return new Map(props);
 	}
+
+	static EVENT = {
+		UPDATE: 'update'
+	};
 
 	constructor(props?: MapProps = {}) {
 		super();
@@ -65,15 +51,16 @@ export class Map extends EventEmitter {
 		this.zoom = zoom || 1;
 		this.center = center || [0, 0];
 
-		this._canvas.on('drag', (e) => {
+		this._canvas.on(Canvas.EVENT.DRAG, (e) => {
 			this._offset[0] += e.movement.x;
 			this._offset[1] += e.movement.y;
 			this._canvas.displace(e.movement.x, e.movement.y);
 			this.render();
 		});
 
-		this._canvas.on('dblclick', (e) => {
+		this._canvas.on(Canvas.EVENT.DBL_CLICK, (e) => {
 			const { originalEvent: { clientX, clientY, shiftKey } } = e;
+
 			if (!shiftKey) {
 				this.zoomIn([clientX, clientY]);
 			} else {
@@ -81,8 +68,9 @@ export class Map extends EventEmitter {
 			}
 		});
 
-		this._canvas.on('wheel', (e) => {
+		this._canvas.on(Canvas.EVENT.WHEEL, (e) => {
 			const { direction, originalEvent: { clientX, clientY } } = e;
+
 			if (direction < 0) {
 				this.zoomIn([clientX, clientY]);
 			} else {
@@ -287,16 +275,17 @@ export class Map extends EventEmitter {
 				onTileLoaded: (pos: Position3d) => this._renderTile(pos)
 			});
 
-			layer.on('tile', this._renderTile.bind(this));
+			this._layers = this._layers.concat([layer]);
 
-			this._layers = this._layers.concat(layer);
+			Object
+				.keys(this._cache)
+				.forEach(key => this._cache[key].update(this._layers));
 		}
 	}
 
 	render() {
 		this.tilePositions.forEach(this._renderTile);
-
-		this.trigger('update');
+		this.trigger(Map.EVENT.UPDATE);
 	}
 
 	@bind
@@ -304,23 +293,14 @@ export class Map extends EventEmitter {
 		const key = makeCacheKey(pos);
 
 		if (this._cache[key]) {
-
-		} else {
-
-		}
-
-		this._layers.forEach(layer => this._renderLayerTile(layer, pos));
-	}
-
-	async _renderLayerTile(layer: Layer, pos: Position3d) {
-		const imgData = layer.render(pos);
-
-		if (imgData) {
 			const { x, y } = this.centerPixel;
 			const xpos = (pos.x * DIM) + this._offset[0] + x;
 			const ypos = (pos.y * DIM) + this._offset[1] + y;
 
-			this._canvas.ctx.putImageData(imgData, xpos, ypos);
+			this._canvas.ctx.putImageData(this._cache[key].imageData, xpos, ypos);
+		} else if (isValidTilePosition(pos)) {
+			this._cache[key] = Tile.create(pos, DIM, this._layers);
+			this._cache[key].on(Tile.EVENT.UPDATE, () => this._renderTile(pos));
 		}
 	}
 }

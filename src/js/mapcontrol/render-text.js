@@ -31,5 +31,5 @@ export function renderText(layer: VectorTileLayer, ctx: Context2d, style: Object
 		}
 	}
 
-	// ctx._ctx.shadowBlur = 0;
+	ctx.shadowBlur = 0;
 }

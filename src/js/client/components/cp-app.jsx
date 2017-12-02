@@ -106,7 +106,7 @@ const layers = [
 	{
 		source: vectorSourceId,
 		type: 'vector',
-		styles: styles1.concat(styles2)
+		styles: styles1
 	} // ,
 	// {
 	// 	source: vectorSourceId,

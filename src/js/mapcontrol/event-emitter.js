@@ -5,6 +5,9 @@ export class EventEmitter {
 
 	on(eventType: string, handler: Function) {
 		this._subscribers[eventType] = this._subscribers[eventType] || [];
+
+		this.off(eventType, handler);
+
 		this._subscribers[eventType].push(handler);
 	}
 
