@@ -2,16 +2,34 @@
 
 import bind from 'autobind-decorator';
 import { EventEmitter } from './event-emitter';
-import { Context2d } from './context-2d';
 import { Canvas } from './canvas';
+import { Context2d } from './context-2d';
 import { Source } from './source';
 import { Layer } from './layer';
-import { hasId } from './fn';
+import { hasId, makeCacheKey } from './fn';
 import { DEFAULT_SIZE, CS_LIMIT, TILE_BUFFER } from './constants';
 
 import type { Position2d, Position3d, Coordinate, SourceData, LayerData, MapProps } from './type';
 
 const DIM = DEFAULT_SIZE;
+
+export class Tile extends EventEmitter {
+	_pos: Position3d;
+	_ctx: Context2d;
+	_layers: Layer[];
+
+	static create(pos: Position3d, layers: Layer[]) {
+		return new Tile(pos, layers);
+	}
+
+	constructor(pos: Position3d, layers: Layer[]) {
+		super();
+
+		this._pos = pos;
+		this._layers = layers;
+		this._ctx = Context2d.create();
+	}
+}
 
 export class Map extends EventEmitter {
 	_container: ?HTMLElement;
@@ -20,6 +38,7 @@ export class Map extends EventEmitter {
 	_layers: Array<Layer>;
 	_zoomLevel: number;
 	_offset: [number, number];
+	_cache: { [string]: any };
 
 	static create(props?: MapProps): Map {
 		return new Map(props);
@@ -35,6 +54,7 @@ export class Map extends EventEmitter {
 		this._layers = [];
 		this._zoomLevel = zoom || 1;
 		this._offset = [0, 0];
+		this._cache = {};
 
 		if (container) {
 			this._container = container;
@@ -281,6 +301,14 @@ export class Map extends EventEmitter {
 
 	@bind
 	_renderTile(pos: Position3d) {
+		const key = makeCacheKey(pos);
+
+		if (this._cache[key]) {
+
+		} else {
+
+		}
+
 		this._layers.forEach(layer => this._renderLayerTile(layer, pos));
 	}
 

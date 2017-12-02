@@ -71,12 +71,12 @@ export class Layer extends EventEmitter {
 		}
 
 		if (pos.z > 14) {
-			console.log('overzoom'); // todo: remove
+			console.log('overzoom!'); // todo: remove
 			return null;
 		}
 
 		if (pos.z < 0) {
-			console.log('underzoom'); // todo: remove
+			console.log('underzoom!'); // todo: remove
 			return null;
 		}
 
@@ -89,6 +89,6 @@ export class Layer extends EventEmitter {
 			}
 		}
 
-		return null; // this._empty;
+		return null;
 	}
 }
