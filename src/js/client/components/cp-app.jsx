@@ -104,15 +104,17 @@ const sources = [
 
 const layers = [
 	{
+		id: 'a',
 		source: vectorSourceId,
 		type: 'vector',
 		styles: styles1
-	} // ,
-	// {
-	// 	source: vectorSourceId,
-	// 	type: 'vector',
-	// 	styles: styles2
-	// }
+	},
+	{
+		id: 'b',
+		source: vectorSourceId,
+		type: 'vector',
+		styles: styles2
+	}
 ];
 
 export function App() {

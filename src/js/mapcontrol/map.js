@@ -6,7 +6,7 @@ import { Canvas } from './canvas';
 import { Tile } from './tile';
 import { Source } from './source';
 import { Layer } from './layer';
-import { hasId, makeCacheKey, isValidTilePosition } from './fn';
+import { hasId, makeCacheKey, isValidTilePosition, isSamePosition } from './fn';
 import { DEFAULT_SIZE, CS_LIMIT, TILE_BUFFER } from './constants';
 
 import type { Position2d, Position3d, Coordinate, SourceData, LayerData, MapProps } from './type';
@@ -21,6 +21,7 @@ export class Map extends EventEmitter {
 	_zoom: number;
 	_offset: Coordinate;
 	_cache: { [string]: Tile };
+	_tiles: Array<Tile>;
 
 	static create(props?: MapProps): Map {
 		return new Map(props);
@@ -41,6 +42,7 @@ export class Map extends EventEmitter {
 		this._zoom = zoom || 1;
 		this._offset = [0, 0];
 		this._cache = {};
+		this._tiles = [];
 
 		if (container) {
 			this._container = container;
@@ -77,6 +79,8 @@ export class Map extends EventEmitter {
 				this.zoomOut([clientX, clientY]);
 			}
 		});
+
+		// setInterval(this._flushTiles, 30000);
 
 		window.map = this;
 	}
@@ -123,22 +127,6 @@ export class Map extends EventEmitter {
 		const { width, height } = this._canvas.dimensions;
 
 		return { x: Math.floor(width / 2), y: Math.floor(height / 2) };
-	}
-
-	get tilePositions(): Array<Position3d> {
-		const { x, y, z } = this.basePosition;
-		const { width, height } = this._canvas.dimensions;
-		const xpositions = Math.ceil(width / DIM) + TILE_BUFFER;
-		const ypositions = Math.ceil(height / DIM) + TILE_BUFFER;
-		const positions = [];
-
-		for (let i = -TILE_BUFFER; i < xpositions; i += 1) {
-			for (let j = -TILE_BUFFER; j < ypositions; j += 1) {
-				positions.push({ x: x + i, y: y + j, z });
-			}
-		}
-
-		return positions;
 	}
 
 	// return the wdith in pixels of one entire row of tiles on the current zoom level
@@ -269,10 +257,11 @@ export class Map extends EventEmitter {
 
 		if (source) {
 			const layer = Layer.create({
+				id: props.id,
 				source,
 				type: props.type,
 				styles: props.styles,
-				onTileLoaded: (pos: Position3d) => this._renderTile(pos)
+				onTileLoaded: this._renderTile
 			});
 
 			this._layers = this._layers.concat([layer]);
@@ -283,8 +272,25 @@ export class Map extends EventEmitter {
 		}
 	}
 
+	tilePositions(): Array<Position3d> {
+		const { x, y, z } = this.basePosition;
+		const { width, height } = this._canvas.dimensions;
+		const xpositions = Math.ceil(width / DIM) + TILE_BUFFER;
+		const ypositions = Math.ceil(height / DIM) + TILE_BUFFER;
+		const positions = [];
+
+		for (let i = -TILE_BUFFER; i < xpositions; i += 1) {
+			for (let j = -TILE_BUFFER; j < ypositions; j += 1) {
+				positions.push({ x: x + i, y: y + j, z });
+			}
+		}
+
+		return positions;
+	}
+
 	render() {
-		this.tilePositions.forEach(this._renderTile);
+		this._flushTiles();
+		this.tilePositions().forEach(this._renderTile);
 		this.trigger(Map.EVENT.UPDATE);
 	}
 
@@ -301,8 +307,23 @@ export class Map extends EventEmitter {
 				this._canvas.ctx.putImageData(this._cache[key].imageData, xpos, ypos);
 			} else {
 				this._cache[key] = Tile.create(pos, DIM, this._layers);
-				this._cache[key].on(Tile.EVENT.UPDATE, () => this._renderTile(pos));
+				this._cache[key].on(Tile.EVENT.UPDATE, this._renderTile);
 			}
 		}
+	}
+
+	@bind
+	_flushTiles() {
+		const positions = this.tilePositions();
+
+		Object.keys(this._cache).forEach((key) => {
+			const a = this._cache[key].pos;
+
+			if (!positions.find(b => isSamePosition(a, b))) {
+				this._cache[key].flush();
+				this._cache[key].off(Tile.EVENT.UPDATE, this._renderTile);
+				delete this._cache[key];
+			}
+		});
 	}
 }

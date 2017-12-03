@@ -1,10 +1,11 @@
 // @flow
 
 import bind from 'autobind-decorator';
-import Protobuf from 'pbf';
-import { VectorTile } from 'vector-tile';
+// import Protobuf from 'pbf';
+// import { VectorTile } from 'vector-tile';
 import { EventEmitter } from './event-emitter';
-import { makeCacheKey, makeUrl } from './fn';
+// import { makeCacheKey, makeUrl } from './fn';
+import { makeUrl } from './fn';
 import TileRequestWorker from './workers/tile-request.worker';
 
 import type { Position3d, SourceProps } from './type';
@@ -52,20 +53,20 @@ export class Source extends EventEmitter {
 
 	@bind
 	_onWorkerMessage({ data: { data, pos } }: Object) {
-		const key = makeCacheKey(pos);
+		// const key = makeCacheKey(pos);
 
-		this._cache[key] = new VectorTile(new Protobuf(data));
+		// this._cache[key] = data;
 
-		this.trigger(Source.EVENT.TILE, { pos, tile: this._cache[key] });
+		this.trigger(Source.EVENT.TILE, { pos, tile: data });
 	}
 
 	loadTile(pos: Position3d): ?any {
-		const key = makeCacheKey(pos);
+		// const key = makeCacheKey(pos);
 
-		if (this._cache[key]) {
-			this.trigger(Source.EVENT.TILE, { pos, tile: this._cache[key] });
-		} else {
-			this._worker.postMessage({ pos, url: makeUrl(this.server, pos) });
-		}
+		// if (this._cache[key]) {
+		// 	this.trigger(Source.EVENT.TILE, { pos, tile: this._cache[key] });
+		// } else {
+		this._worker.postMessage({ pos, url: makeUrl(this.server, pos) });
+		// }
 	}
 }

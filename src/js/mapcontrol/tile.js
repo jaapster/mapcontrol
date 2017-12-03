@@ -28,8 +28,7 @@ export class Tile extends EventEmitter {
 
 		this._pos = pos;
 		this._size = size;
-		this._ctx = Context2d.create();
-		this._imgData = this._ctx.getImageData(0, 0, size, size);
+		this._imgData = null;
 
 		this.update(layers);
 	}
@@ -39,7 +38,19 @@ export class Tile extends EventEmitter {
 	}
 
 	get imageData(): ?ImageData {
-		return this._imgData;
+		if (this._imgData) {
+			return this._imgData;
+		}
+
+		this._layers.forEach(l => l.tile(this._pos));
+
+		return null;
+	}
+
+	flush() {
+		this._imgData = null;
+		const key = makeCacheKey(this._pos);
+		this._layers.forEach(l => l.off(key, this._renderLayers));
 	}
 
 	update(layers: Layer[]) {
@@ -47,19 +58,19 @@ export class Tile extends EventEmitter {
 
 		const key = makeCacheKey(this._pos);
 
-		this._layers.forEach((layer) => {
-			layer.on(key, this._renderLayers);
-			layer.tile(this._pos);
+		this._layers.forEach((l) => {
+			l.on(key, this._renderLayers);
+			l.tile(this._pos);
 		});
 	}
 
 	@bind
-	_renderLayers() {
-		this._ctx.clearRect(0, 0, this._size, this._size);
+	_renderLayers(tile: any) {
+		const ctx = Context2d.create();
 
-		this._layers.forEach(layer => layer.render(this._pos, this._ctx));
-		this._imgData = this._ctx.getImageData(0, 0, this._size, this._size);
+		this._layers.forEach(l => l.render(this._pos, ctx, tile));
+		this._imgData = ctx.getImageData(0, 0, this._size, this._size);
 
-		this.trigger(Tile.EVENT.UPDATE);
+		this.trigger(Tile.EVENT.UPDATE, this._pos);
 	}
 }

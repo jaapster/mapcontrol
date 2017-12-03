@@ -17,3 +17,7 @@ export function isValidTilePosition({ x, y, z }: Position3d): boolean {
 	const tileNum = 2 ** z;
 	return x >= 0 && y >= 0 && x < tileNum && y < tileNum;
 }
+
+export function isSamePosition(a: Position3d, b: Position3d) {
+	return a.x === b.x && a.y === b.y && a.z === b.z;
+}
