@@ -5,7 +5,7 @@ import Protobuf from 'pbf';
 import { VectorTile } from 'vector-tile';
 import { EventEmitter } from './event-emitter';
 import { makeCacheKey, makeUrl } from './fn';
-import TileRequestWorker from './tile-request.worker';
+import TileRequestWorker from './workers/tile-request.worker';
 
 import type { Position3d, SourceProps } from './type';
 

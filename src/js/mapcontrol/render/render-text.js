@@ -1,10 +1,10 @@
 // @flow
 
 import type { VectorTileLayer } from 'vector-tile';
-import type { Context2d } from './context-2d';
+import type { Context2d } from '../context-2d';
 
-import { translate } from './translate';
-import { DEFAULT_SIZE } from './constants';
+import { translate } from '../translate';
+import { DEFAULT_SIZE } from '../constants';
 
 export function renderText(layer: VectorTileLayer, ctx: Context2d, style: Object) {
 	ctx.fillStyle = style.paint.color;

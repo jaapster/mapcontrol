@@ -6,7 +6,7 @@ import { Source } from './source';
 import { EventEmitter } from './event-emitter';
 import { DEFAULT_SIZE } from './constants';
 import { makeCacheKey } from './fn';
-import { renderVectorData } from './render-vector-data';
+import { renderVectorData } from './render/render-vector-data';
 
 import type { Position3d, LayerProps, VectorTileMessage } from './type';
 

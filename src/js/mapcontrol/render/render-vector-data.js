@@ -7,7 +7,7 @@ import { renderLine } from './render-line';
 import { renderCircle } from './render-circle';
 import { renderText } from './render-text';
 
-import type { Context2d } from './context-2d';
+import type { Context2d } from '../context-2d';
 
 export function renderVectorData(layer: VectorTileLayer, ctx: Context2d, style: Object, zoom: number) {
 	const { min, max } = style;

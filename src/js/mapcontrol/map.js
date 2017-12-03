@@ -18,9 +18,9 @@ export class Map extends EventEmitter {
 	_canvas: Canvas;
 	_sources: Array<Source>;
 	_layers: Array<Layer>;
-	_zoomLevel: number;
-	_offset: [number, number];
-	_cache: { [string]: any };
+	_zoom: number;
+	_offset: Coordinate;
+	_cache: { [string]: Tile };
 
 	static create(props?: MapProps): Map {
 		return new Map(props);
@@ -38,7 +38,7 @@ export class Map extends EventEmitter {
 		this._canvas = Canvas.create({ width: 10, height: 10 });
 		this._sources = [];
 		this._layers = [];
-		this._zoomLevel = zoom || 1;
+		this._zoom = zoom || 1;
 		this._offset = [0, 0];
 		this._cache = {};
 
@@ -48,8 +48,8 @@ export class Map extends EventEmitter {
 			this._canvas.fitParent();
 		}
 
-		this.zoom = zoom || 1;
 		this.center = center || [0, 0];
+		this.zoom = zoom || 1;
 
 		this._canvas.on(Canvas.EVENT.DRAG, (e) => {
 			this._offset[0] += e.movement.x;
@@ -86,7 +86,7 @@ export class Map extends EventEmitter {
 	}
 
 	get zoom(): number {
-		return this._zoomLevel;
+		return this._zoom;
 	}
 
 	set zoom(z: number) {
@@ -103,7 +103,7 @@ export class Map extends EventEmitter {
 		];
 
 		// update the zoom level variable
-		this._zoomLevel = z;
+		this._zoom = z;
 
 		// restire the map center
 		this.center = center;
@@ -216,7 +216,7 @@ export class Map extends EventEmitter {
 		const [cx, cy] = center;
 		const [dx, dy] = [cx - fx, cy - fy];
 
-		this._zoomLevel += amount;
+		this._zoom += amount;
 
 		this._offset = [
 			((this._offset[0] + dx) * (2 ** amount)) - dx,
@@ -231,7 +231,7 @@ export class Map extends EventEmitter {
 			amount = 1;
 		}
 
-		if (this._zoomLevel - amount < 0) {
+		if (this._zoom - amount < 0) {
 			return;
 		}
 
@@ -246,7 +246,7 @@ export class Map extends EventEmitter {
 		const [cx, cy] = center;
 		const [dx, dy] = [cx - fx, cy - fy];
 
-		this._zoomLevel -= amount;
+		this._zoom -= amount;
 
 		this._offset = [
 			((this._offset[0] + dx) / (2 ** amount)) - dx,
@@ -290,17 +290,19 @@ export class Map extends EventEmitter {
 
 	@bind
 	_renderTile(pos: Position3d) {
-		const key = makeCacheKey(pos);
+		if (isValidTilePosition(pos)) {
+			const key = makeCacheKey(pos);
 
-		if (this._cache[key]) {
-			const { x, y } = this.centerPixel;
-			const xpos = (pos.x * DIM) + this._offset[0] + x;
-			const ypos = (pos.y * DIM) + this._offset[1] + y;
+			if (this._cache[key]) {
+				const { x, y } = this.centerPixel;
+				const xpos = (pos.x * DIM) + this._offset[0] + x;
+				const ypos = (pos.y * DIM) + this._offset[1] + y;
 
-			this._canvas.ctx.putImageData(this._cache[key].imageData, xpos, ypos);
-		} else if (isValidTilePosition(pos)) {
-			this._cache[key] = Tile.create(pos, DIM, this._layers);
-			this._cache[key].on(Tile.EVENT.UPDATE, () => this._renderTile(pos));
+				this._canvas.ctx.putImageData(this._cache[key].imageData, xpos, ypos);
+			} else {
+				this._cache[key] = Tile.create(pos, DIM, this._layers);
+				this._cache[key].on(Tile.EVENT.UPDATE, () => this._renderTile(pos));
+			}
 		}
 	}
 }
