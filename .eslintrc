@@ -5,8 +5,7 @@
 
   "env": {
     "browser": true,
-    "node": true,
-    "jasmine": true
+    "node": true
   },
 
   "rules": {

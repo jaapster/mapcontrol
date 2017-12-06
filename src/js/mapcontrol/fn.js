@@ -1,6 +1,8 @@
+// @flow
+
 import type { Position3d } from './type';
 
-export const hasId = id => obj => obj.id === id;
+export const hasId = (id: string) => (obj: Object) => obj.id === id;
 
 export function makeCacheKey({ x, y, z }: Position3d) {
 	return `${x}_${y}_${z}`;
@@ -20,4 +22,39 @@ export function isValidTilePosition({ x, y, z }: Position3d): boolean {
 
 export function isSamePosition(a: Position3d, b: Position3d) {
 	return a.x === b.x && a.y === b.y && a.z === b.z;
+}
+
+export function debounce(f: Function, interval: number, immediate: ?boolean) {
+	let timeout;
+	return (...args: any) => {
+		const later = () => {
+			timeout = null;
+			if (!immediate) {
+				f(...args);
+			}
+		};
+
+		const callNow = immediate && !timeout;
+
+		clearTimeout(timeout);
+
+		timeout = setTimeout(later, interval);
+
+		if (callNow) {
+			f(...args);
+		}
+	};
+}
+
+export function throttle(f: Function, interval: number) {
+	let timeout;
+	return (...args: any) => {
+		if (!timeout) {
+			console.log('execute'); // todo: remove
+			f(...args);
+			timeout = setTimeout(() => {
+				timeout = null;
+			}, interval);
+		}
+	}
 }

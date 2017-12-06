@@ -107,7 +107,14 @@ export class Context2d {
 		}
 	}
 
-	setTransform(hScale: number, hSkew: number, vSkew: number, vScale: number, hMove: number, vMove: number) {
+	setTransform(
+		hScale: number,
+		hSkew: number,
+		vSkew: number,
+		vScale: number,
+		hMove: number,
+		vMove: number
+	) {
 		if (this._ctx) {
 			this._ctx.setTransform(hScale, hSkew, vSkew, vScale, hMove, vMove);
 		}
@@ -155,7 +162,16 @@ export class Context2d {
 		}
 	}
 
-	ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean) {
+	ellipse(
+		x: number,
+		y: number,
+		radiusX: number,
+		radiusY: number,
+		rotation: number,
+		startAngle: number,
+		endAngle: number,
+		anticlockwise: boolean
+	) {
 		if (this._ctx) {
 			this._ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise);
 		}
