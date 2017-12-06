@@ -5,7 +5,9 @@ import { Map } from '../../mapcontrol/map';
 
 export class MapControl extends React.Component {
 	state = {
-		center: [0, 0]
+		center: [0, 0],
+		zoom: 0,
+		zoomFloat: 0
 	};
 
 	componentDidMount() {
@@ -13,7 +15,11 @@ export class MapControl extends React.Component {
 		this._map = Map.create({ container: this._container, zoom, center });
 
 		this._map.on(Map.EVENT.UPDATE, () => {
-			this.setState({ center: this._map.center });
+			this.setState({
+				center: this._map.center,
+				zoom: this._map._zoom,
+				zoomFloat: this._map._zoomFloat
+			});
 		});
 
 		if (this.props.sources) {
@@ -40,11 +46,13 @@ export class MapControl extends React.Component {
 		};
 
 		const [x, y] = this.state.center;
+		const z = this.state.zoom;
+		const zf = this.state.zoomFloat;
 
 		return (
 			<div className="mapcontrol">
 				<div className="mapcontrol-container" ref={setContainer} />
-				<p className="center-coordinate">{ x } { y }</p>
+				<p className="center-coordinate">{ x } | { y } | { z } | { zf }</p>
 				<div className="guide guide-vertical" />
 				<div className="guide guide-horizontal" />
 			</div>

@@ -52,7 +52,6 @@ const config = {
 						loader: 'babel-loader',
 						options: {
 							presets: ['es2015', 'stage-0', 'react', 'flow'],
-							plugins: ['add-module-exports', 'transform-decorators-legacy'],
 							cacheDirectory: '_babel_cache'
 						}
 					}

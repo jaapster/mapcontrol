@@ -81,9 +81,9 @@ export class Context2d {
 		}
 	}
 
-	drawImage(img: Image, x: number = 0, y: number = 0) {
+	drawImage(img: Image, dx: number = 0, dy: number = 0) {
 		if (this._ctx) {
-			this._ctx.drawImage(img, x, y);
+			this._ctx.drawImage(img, dx, dy);
 		}
 	}
 

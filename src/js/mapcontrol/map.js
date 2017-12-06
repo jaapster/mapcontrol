@@ -3,13 +3,32 @@
 import bind from 'autobind-decorator';
 import { EventEmitter } from './event-emitter';
 import { Canvas } from './canvas';
+import { Context2d } from './context-2d';
 import { Tile } from './tile';
 import { Source } from './source';
 import { Layer } from './layer';
-import { hasId, makeCacheKey, isValidTilePosition, isSamePosition } from './fn';
-import { DEFAULT_SIZE, CS_LIMIT, TILE_BUFFER } from './constants';
 
-import type { Position2d, Position3d, Coordinate, SourceData, LayerData, MapProps } from './type';
+import {
+	hasId,
+	makeCacheKey,
+	isValidTilePosition,
+	isSamePosition
+} from './fn';
+
+import {
+	DEFAULT_SIZE,
+	CS_LIMIT,
+	TILE_BUFFER
+} from './constants';
+
+import type {
+	Position2d,
+	Position3d,
+	Coordinate,
+	SourceData,
+	LayerData,
+	MapProps
+} from './type';
 
 const DIM = DEFAULT_SIZE;
 
@@ -19,6 +38,7 @@ export class Map extends EventEmitter {
 	_sources: Array<Source>;
 	_layers: Array<Layer>;
 	_zoom: number;
+	_zoomFloat: number;
 	_offset: Coordinate;
 	_cache: { [string]: Tile };
 	_tiles: Array<Tile>;
@@ -40,6 +60,7 @@ export class Map extends EventEmitter {
 		this._sources = [];
 		this._layers = [];
 		this._zoom = zoom || 1;
+		this._zoomFloat = zoom || 1;
 		this._offset = [0, 0];
 		this._cache = {};
 		this._tiles = [];
@@ -74,13 +95,11 @@ export class Map extends EventEmitter {
 			const { direction, originalEvent: { clientX, clientY } } = e;
 
 			if (direction < 0) {
-				this.zoomIn([clientX, clientY]);
+				this.zoomIn([clientX, clientY], 0.1);
 			} else {
-				this.zoomOut([clientX, clientY]);
+				this.zoomOut([clientX, clientY], 0.1);
 			}
 		});
-
-		// setInterval(this._flushTiles, 30000);
 
 		window.map = this;
 	}
@@ -109,7 +128,7 @@ export class Map extends EventEmitter {
 		// update the zoom level variable
 		this._zoom = z;
 
-		// restire the map center
+		// restore the map center
 		this.center = center;
 	}
 
@@ -119,7 +138,7 @@ export class Map extends EventEmitter {
 		return {
 			x: Math.floor(-(this._offset[0] + (width / 2)) / DIM),
 			y: Math.floor(-(this._offset[1] + (height / 2)) / DIM),
-			z: this.zoom
+			z: Math.round(this._zoom)
 		};
 	}
 
@@ -188,7 +207,7 @@ export class Map extends EventEmitter {
 		this.center = [0, 0];
 	}
 
-	zoomIn(focus: ?Coordinate, amount: ?number) {
+	zoomIn(around: ?Coordinate, amount: ?number) {
 		if (!amount) {
 			amount = 1;
 		}
@@ -196,25 +215,30 @@ export class Map extends EventEmitter {
 		const { width, height } = this._canvas.dimensions;
 		const center = [width / 2, height / 2];
 
-		if (!focus) {
-			focus = center;
+		if (!around) {
+			around = center;
 		}
 
-		const [fx, fy] = focus;
+		const [fx, fy] = around;
 		const [cx, cy] = center;
 		const [dx, dy] = [cx - fx, cy - fy];
 
-		this._zoom += amount;
+		this._zoomFloat = Math.round((this._zoomFloat + amount) * 10) / 10;
 
-		this._offset = [
-			((this._offset[0] + dx) * (2 ** amount)) - dx,
-			((this._offset[1] + dy) * (2 ** amount)) - dy
-		];
+		if (this._zoomFloat - this._zoom > 0.5) {
+			const dif = Math.round(this._zoomFloat) - this._zoom;
+			this._zoom = Math.round(this._zoomFloat);
+
+			this._offset = [
+				((this._offset[0] + dx) * (2 ** dif)) - dx,
+				((this._offset[1] + dy) * (2 ** dif)) - dy
+			];
+		}
 
 		this.render();
 	}
 
-	zoomOut(focus: ?Coordinate, amount: ?number) {
+	zoomOut(around: ?Coordinate, amount: ?number) {
 		if (!amount) {
 			amount = 1;
 		}
@@ -226,20 +250,25 @@ export class Map extends EventEmitter {
 		const { width, height } = this._canvas.dimensions;
 		const center = [width / 2, height / 2];
 
-		if (!focus) {
-			focus = center;
+		if (!around) {
+			around = center;
 		}
 
-		const [fx, fy] = focus;
+		const [fx, fy] = around;
 		const [cx, cy] = center;
 		const [dx, dy] = [cx - fx, cy - fy];
 
-		this._zoom -= amount;
+		this._zoomFloat -= amount;
 
-		this._offset = [
-			((this._offset[0] + dx) / (2 ** amount)) - dx,
-			((this._offset[1] + dy) / (2 ** amount)) - dy
-		];
+		if (Math.round(this._zoomFloat) - this._zoom < -0.5) {
+			const dif = this._zoom - Math.round(this._zoomFloat);
+			this._zoom = Math.round(this._zoomFloat);
+
+			this._offset = [
+				((this._offset[0] + dx) / (2 ** dif)) - dx,
+				((this._offset[1] + dy) / (2 ** dif)) - dy
+			];
+		}
 
 		this.render();
 	}
@@ -301,10 +330,24 @@ export class Map extends EventEmitter {
 
 			if (this._cache[key]) {
 				const { x, y } = this.centerPixel;
-				const xpos = (pos.x * DIM) + this._offset[0] + x;
-				const ypos = (pos.y * DIM) + this._offset[1] + y;
+				const f = 1 + (this._zoomFloat - this._zoom);
 
-				this._canvas.ctx.putImageData(this._cache[key].imageData, xpos, ypos);
+				// const _x = (pos.x * DIM * f) + (this._offset[0] * f) + x;
+				// const _y = (pos.y * DIM * f) + (this._offset[1] * f) + y;
+
+				const _x = (((pos.x * DIM) + this._offset[0]) * f) + x;
+				const _y = (((pos.y * DIM) + this._offset[1]) * f) + y;
+
+				const img = this._cache[key].imageData;
+				const ctx = Context2d.create();
+
+				ctx.putImageData(img, 0, 0);
+
+				if (this._canvas.ctx._ctx) {
+					this._canvas.ctx._ctx.drawImage(ctx._canvas, _x, _y, DIM * f, DIM * f);
+				}
+
+				// this._canvas.ctx.putImageData(img, _x, _y);
 			} else {
 				this._cache[key] = Tile.create(pos, DIM, this._layers);
 				this._cache[key].on(Tile.EVENT.UPDATE, this._renderTile);
