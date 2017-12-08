@@ -11,7 +11,8 @@ const styles1 = [
 		paint: {
 			color: '#888'
 		}
-	}, {
+	},
+	{
 		type: 'fill',
 		layer: 'landcover',
 		paint: {
@@ -70,7 +71,8 @@ const styles2 = [
 			color: '#fff',
 			offset: [0, 25]
 		}
-	}, {
+	},
+	{
 		type: 'circle',
 		layer: 'place',
 		class: 'city',

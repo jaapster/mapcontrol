@@ -4,6 +4,7 @@ import bind from 'autobind-decorator';
 import _ from 'lodash';
 import { EventEmitter } from './event-emitter';
 import { Canvas } from './canvas';
+// import { Context2d } from './context-2d';
 import { Tile } from './tile';
 import { Source } from './source';
 import { Layer } from './layer';
@@ -36,8 +37,8 @@ export class Map extends EventEmitter {
 	_canvas: Canvas;
 	_sources: Array<Source>;
 	_layers: Array<Layer>;
-	// _zoom: number;
-	_zoomFloat: number;
+	_zoom: number;
+	// _zoomFloat: number;
 	_offset: Coordinate;
 	_cache: { [string]: Tile };
 	_tiles: Array<Tile>;
@@ -89,7 +90,7 @@ export class Map extends EventEmitter {
 			}
 		});
 
-		const amount = 0.01;
+		const amount = 0.1;
 
 		this._canvas.on(Canvas.EVENT.WHEEL, (e) => {
 			const { direction, originalEvent: { clientX, clientY } } = e;
@@ -130,16 +131,6 @@ export class Map extends EventEmitter {
 
 		// restore the map center
 		this.center = center;
-	}
-
-	get basePosition(): Position3d {
-		const { width, height } = this._canvas.dimensions;
-
-		return {
-			x: Math.floor(-(this._offset[0] + (width / 2)) / DIM),
-			y: Math.floor(-(this._offset[1] + (height / 2)) / DIM),
-			z: Math.floor(this._zoom)
-		};
 	}
 
 	get centerPixel(): Coordinate {
@@ -289,11 +280,33 @@ export class Map extends EventEmitter {
 		}
 	}
 
+	get f(): number {
+		if (this._zoom === Math.floor(this._zoom)) {
+			return 1;
+		}
+
+		const f = (this._zoom - Math.floor(this._zoom)) + 1;
+
+		return f;
+	}
+
+	get basePosition(): Position3d {
+		const d = DIM; // * this.f;
+		const { width, height } = this._canvas.dimensions;
+
+		return {
+			x: Math.floor(-(this._offset[0] + (width / 2)) / d),
+			y: Math.floor(-(this._offset[1] + (height / 2)) / d),
+			z: Math.floor(this._zoom)
+		};
+	}
+
 	tilePositions(): Array<Position3d> {
+		const d = DIM; // * this.f;
 		const { x, y, z } = this.basePosition;
 		const { width, height } = this._canvas.dimensions;
-		const xpositions = Math.ceil(width / DIM) + TILE_BUFFER;
-		const ypositions = Math.ceil(height / DIM) + TILE_BUFFER;
+		const xpositions = Math.ceil(width / d) + TILE_BUFFER;
+		const ypositions = Math.ceil(height / d) + TILE_BUFFER;
 		const positions = [];
 
 		for (let i = -TILE_BUFFER; i < xpositions; i += 1) {

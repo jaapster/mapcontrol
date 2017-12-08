@@ -6,7 +6,7 @@ import type { Context2d } from '../context-2d';
 import { translate } from '../translate';
 import { DEFAULT_SIZE } from '../constants';
 
-export function renderLine(layer: VectorTileLayer, ctx: Context2d, style: Object) {
+export function renderLine(layer: VectorTileLayer, ctx: Context2d, style: Object, size: number = DEFAULT_SIZE) {
 	ctx.strokeStyle = style.paint.color;
 	ctx.lineWidth = style.paint.width || 1;
 
@@ -20,7 +20,7 @@ export function renderLine(layer: VectorTileLayer, ctx: Context2d, style: Object
 
 			geo.forEach((subgeo) => {
 				subgeo
-					.map(translate(feature.extent, DEFAULT_SIZE))
+					.map(translate(feature.extent, size))
 					.forEach(({ x, y }, pointIndex) => {
 						if (!pointIndex) {
 							ctx.moveTo(x, y);

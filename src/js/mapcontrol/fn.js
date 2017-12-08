@@ -50,7 +50,6 @@ export function throttle(f: Function, interval: number) {
 	let timeout;
 	return (...args: any) => {
 		if (!timeout) {
-			console.log('execute'); // todo: remove
 			f(...args);
 			timeout = setTimeout(() => {
 				timeout = null;

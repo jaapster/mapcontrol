@@ -43,6 +43,14 @@ const config = {
 				]
 			},
 			{
+				test: /\.glsl$/,
+				use: [
+					{
+						loader: 'webpack-glsl-loader'
+					}
+				]
+			},
+			{
 
 				test: /\.(js|jsx)?$/,
 				include: [path.join(__dirname, 'src')],

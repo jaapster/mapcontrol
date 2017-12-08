@@ -101,10 +101,6 @@ export class Canvas extends EventEmitter {
 		this._ctx.clearRect(x, y, h, w);
 	}
 
-	drawImage(img: Image, x: number = 0, y: number = 0) {
-		this._ctx.drawImage(img, x, y);
-	}
-
 	displace(x: number, y: number) {
 		const imgData = this._ctx.getImageData(0, 0, 512, 512);
 		this._ctx.putImageData(imgData, x, y);

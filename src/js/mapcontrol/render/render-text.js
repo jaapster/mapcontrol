@@ -6,7 +6,7 @@ import type { Context2d } from '../context-2d';
 import { translate } from '../translate';
 import { DEFAULT_SIZE } from '../constants';
 
-export function renderText(layer: VectorTileLayer, ctx: Context2d, style: Object) {
+export function renderText(layer: VectorTileLayer, ctx: Context2d, style: Object, size: number = DEFAULT_SIZE) {
 	ctx.fillStyle = style.paint.color;
 	ctx.font = style.paint.font || '12px sans-serif';
 	ctx.textAlign = style.paint.align || 'center';
@@ -24,7 +24,7 @@ export function renderText(layer: VectorTileLayer, ctx: Context2d, style: Object
 				ctx.strokeStyle = 'black';
 				ctx.shadowBlur = 5;
 				ctx.lineWidth = 2;
-				const { x, y } = translate(feature.extent, DEFAULT_SIZE)(subgeo[0]);
+				const { x, y } = translate(feature.extent, size)(subgeo[0]);
 				ctx.strokeText(feature.properties.name, x + offsetX, y + offsetY);
 				ctx.fillText(feature.properties.name, x + offsetX, y + offsetY);
 			});

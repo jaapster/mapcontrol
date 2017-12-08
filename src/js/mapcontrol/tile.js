@@ -76,7 +76,7 @@ export class Tile extends EventEmitter {
 
 		ctx.fillRect(0, 0, this._size, this._size);
 
-		this._layers.forEach(l => l.render(this._pos, ctx, tile));
+		this._layers.forEach(l => l.render(this._pos, ctx, tile, this._size));
 		this._imgData = ctx.getImageData(0, 0, this._size, this._size);
 
 		this.trigger(Tile.EVENT.UPDATE, this._pos);

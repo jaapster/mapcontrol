@@ -61,19 +61,19 @@ export class Layer extends EventEmitter {
 		this.trigger(key, tile);
 	}
 
-	_renderTile({ tile, pos }: VectorTileMessage, buffer: Context2d) {
+	_renderTile({ tile, pos }: VectorTileMessage, buffer: Context2d, size: number) {
 		this._styles
 			.forEach(s =>
-				renderVectorData(new VectorTile(new Protobuf(tile)).layers[s.layer], buffer, s, pos.z)
+				renderVectorData(new VectorTile(new Protobuf(tile)).layers[s.layer], buffer, s, pos.z, Math.round(size))
 			);
 	}
 
-	render(pos: Position3d, ctx: Context2d, tile: Object) {
-		this._renderTile({ tile, pos }, ctx);
+	render(pos: Position3d, ctx: Context2d, tile: Object, size: number) {
+		this._renderTile({ tile, pos }, ctx, size);
 		// const key = makeCacheKey(pos);
 
 		// if (this._cache[key]) {
-			// this._renderTile({ tile: this._cache[key], pos }, ctx);
+		// this._renderTile({ tile: this._cache[key], pos }, ctx);
 		// }
 	}
 

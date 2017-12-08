@@ -1,4 +1,4 @@
-// @flow
+// flow
 
 import { DEFAULT_SIZE } from './constants';
 
@@ -6,15 +6,15 @@ export class Context2d {
 	_canvas: HTMLCanvasElement;
 	_ctx: ?CanvasRenderingContext2D;
 
-	static create(canvas: ?HTMLCanvasElement) {
-		return new Context2d(canvas);
+	static create(canvas: ?HTMLCanvasElement, size: number = DEFAULT_SIZE) {
+		return new Context2d(canvas, size);
 	}
 
-	constructor(canvas: ?HTMLCanvasElement) {
+	constructor(canvas: ?HTMLCanvasElement, size: number) {
 		if (!canvas) {
 			this._canvas = document.createElement('canvas');
-			this._canvas.width = DEFAULT_SIZE;
-			this._canvas.height = DEFAULT_SIZE;
+			this._canvas.width = size;
+			this._canvas.height = size;
 		} else {
 			this._canvas = canvas;
 		}
@@ -81,9 +81,9 @@ export class Context2d {
 		}
 	}
 
-	drawImage(img: Image, dx: number = 0, dy: number = 0) {
+	drawImage(img: Image, dx: number = 0, dy: number = 0, w: ?number, h: ?number) {
 		if (this._ctx) {
-			this._ctx.drawImage(img, dx, dy);
+			this._ctx.drawImage(img, dx, dy, w, h);
 		}
 	}
 
