@@ -1,7 +1,7 @@
 {
   "parser": "babel-eslint",
   "extends": "airbnb",
-  "plugins": ["babel", "react", "flowtype-errors"],
+  "plugins": ["babel", "react"],
 
   "env": {
     "browser": true,
@@ -16,24 +16,15 @@
     "max-len": 0,
     "no-console": 0,
     "indent": ["error", "tab", { "SwitchCase": 1 }],
-    "flowtype-errors/show-errors": 2,
     "react/jsx-indent": ["error", "tab"],
     "react/jsx-indent-props": ["error", "tab"],
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/prop-types": 0,
     "react/require-default-props": 0,
-    "jsx-a11y/label-has-for": 0,
-    "jsx-a11y/no-static-element-interactions": 0,
     "jsx-a11y/show-errors": 0,
-    "jsx-a11y/no-noninteractive-element-interactions": 0,
     "import/prefer-default-export": 0,
     "import/first": 0,
-    "no-bitwise": 0
-  },
-
-  "settings": {
-    "flowtype": {
-      "onlyFilesWithFlowAnnotation": true
-    }
+    "no-bitwise": 0,
+    "no-plusplus": 0
   }
 }

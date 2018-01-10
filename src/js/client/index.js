@@ -1,11 +1,11 @@
 // @flow
 
-// import React from 'react';
-// import ReactDOM from 'react-dom';
-// import { App } from './components/cp-app';
-//
-// ReactDOM.render(<App />, document.getElementById('app'));
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { App } from './components/cp-app-gl';
 
-import app from '../mapcontrol/gl/index';
+const app = document.getElementById('app');
 
-app.main(document.querySelector('#glcanvas'));
+if (app) {
+	ReactDOM.render(<App />, app);
+}
