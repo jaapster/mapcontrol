@@ -1,35 +1,41 @@
+// @flow
+
+import type { Mat3 } from '../type';
+
 export const mat3 = {
-	translation: function(tx, ty) {
+	translation(x: number, y: number): Mat3 {
 		return [
 			1, 0, 0,
 			0, 1, 0,
-			tx, ty, 1
+			x, y, 1
 		];
 	},
 
-	rotation: function(angleInRadians) {
-		const c = Math.cos(angleInRadians);
-		const s = Math.sin(angleInRadians);
+	rotation(rad: number): Mat3 {
+		const c = Math.cos(rad);
+		const s = Math.sin(rad);
+		const t = -s;
+
 		return [
-			c,-s, 0,
+			c, t, 0,
 			s, c, 0,
 			0, 0, 1
 		];
 	},
 
-	scaling: function(sx, sy) {
+	scaling(x: number, y: number): Mat3 {
 		return [
-			sx, 0, 0,
-			0, sy, 0,
+			x, 0, 0,
+			0, y, 0,
 			0, 0, 1
 		];
 	},
 
-	identity: function() {
+	identity(): Mat3 {
 		return [
 			1, 0, 0,
 			0, 1, 0,
 			0, 0, 1
-		]
+		];
 	}
 };

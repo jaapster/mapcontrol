@@ -12,6 +12,10 @@ export class Renderer {
 	_gl: WebGLRenderingContext;
 	_info: ProgramInfo;
 
+	static create(gl: WebGLRenderingContext): Renderer {
+		return new Renderer(gl);
+	}
+
 	constructor(gl: WebGLRenderingContext) {
 		this._gl = gl;
 		this._info = utils.createProgramInfo(gl, [vsSrc, fsSrc]);
@@ -28,7 +32,16 @@ export class Renderer {
 		});
 	}
 
-	draw({ locations, indices, color, depth, offset, rotation, extent, size }: DrawInfo) {
+	draw({
+		locations,
+		indices,
+		color,
+		depth,
+		offset,
+		rotation,
+		extent,
+		size
+	}: DrawInfo): void {
 		const gl = this._gl;
 
 		utils.setUniforms(this._info.uniformSetters, {

@@ -1,4 +1,4 @@
-
+// @flow
 
 import { error } from './log';
 
@@ -54,7 +54,8 @@ export function createProgram(
 			gl.bindAttribLocation(
 				program,
 				optLocations ? optLocations[ndx] : ndx,
-				attrib);
+				attrib
+			);
 		});
 	}
 
@@ -125,7 +126,7 @@ export function createUniformSetters(
 		uniformInfo: Object
 	): ?Function {
 		const location = gl.getUniformLocation(prog, uniformInfo.name);
-		const type = uniformInfo.type;
+		const { type } = uniformInfo;
 
 		// Check if this uniform is an array
 		const isArray = (uniformInfo.size > 1 && uniformInfo.name.substr(-3) === '[0]');
@@ -233,7 +234,7 @@ export function createUniformSetters(
 		if (!uniformInfo) {
 			break;
 		}
-		let name = uniformInfo.name;
+		let { name } = uniformInfo;
 		// remove the array suffix.
 		if (name.substr(-3) === '[0]') {
 			name = name.substr(0, name.length - 3);

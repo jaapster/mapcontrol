@@ -17,9 +17,22 @@ export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 
-export interface Renderer {
-	draw(vertices: Array<number>, offset: Vec4, depth: number, color: Vec4): void
-}
+export type Mat3 = [
+	number, number, number,
+	number, number, number,
+	number, number, number
+];
+
+// export interface Renderer {
+// 	draw(vertices: Array<number>, offset: Vec4, depth: number, color: Vec4): void
+// }
+
+export type Contours = number[][];
+
+export type TessalationResult = {
+	triangleLocations: Array<number>,
+	triangleIndices: Array<number>
+};
 
 export type DrawInfo = {
 	locations: Float32Array,

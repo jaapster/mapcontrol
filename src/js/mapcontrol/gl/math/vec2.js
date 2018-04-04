@@ -1,41 +1,47 @@
+// @flow
+
+import type { Vec2 } from '../type';
+
 export const vec2 = {
-	rotate([x, y], radians) {
+	rotate([x, y]: Vec2, rad: number): Vec2 {
 		return [
-			x * Math.cos(radians) - y * Math.sin(radians),
-			x * Math.sin(radians) + y * Math.cos(radians)
+			(x * Math.cos(rad)) - (y * Math.sin(rad)),
+			(x * Math.sin(rad)) + (y * Math.cos(rad))
 		];
 	},
 
-	mult([x, y], factor) {
-		if (typeof factor === 'number') {
+	mult([x, y]: Vec2, f: Vec2 | number): Vec2 {
+		if (typeof f === 'number') {
 			return [
-				x * factor,
-				y * factor
+				x * f,
+				y * f
 			];
 		}
+
 		return [
-			x * factor[0],
-			y * factor[1]
+			x * f[0],
+			y * f[1]
 		];
 	},
 
-	div([x, y], factor) {
-		if (typeof factor === 'number') {
+	div([x, y]: Vec2, f: Vec2 | number): Vec2 {
+		if (typeof f === 'number') {
 			return [
-				x / factor,
-				y / factor
+				x / f,
+				y / f
 			];
 		}
+
 		return [
-			x / factor[0],
-			y / factor[1]
+			x / f[0],
+			y / f[1]
 		];
 	},
 
-	add([x1, y1], [x2, y2]) {
+	add([x1, y1]: Vec2, [x2, y2]: Vec2): Vec2 {
 		return [
 			x1 + x2,
 			y1 + y2
 		];
 	}
-}
+};
