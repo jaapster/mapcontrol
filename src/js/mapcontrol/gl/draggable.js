@@ -1,7 +1,7 @@
 import { EventEmitter } from './event-emitter';
 
 export class Draggable extends EventEmitter {
-	constructor(element) {
+	constructor(element: HTMLElement) {
 		super();
 
 		let dragging = false;
@@ -20,6 +20,6 @@ export class Draggable extends EventEmitter {
 			}
 		});
 
-		element.addEventListener('wheel', (e) => this.trigger('wheel', e));
+		element.addEventListener('wheel', e => this.trigger('wheel', e));
 	}
 }

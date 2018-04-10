@@ -1,20 +1,16 @@
-export class EventEmitter {
-	_subscribers: { [string]: Function[] };
+// @flow
 
-	_subscribers = {}
+export class EventEmitter {
+	_subscribers: { [string]: Set } = {};
 
 	on(eventType: string, handler: Function) {
-		this._subscribers[eventType] = this._subscribers[eventType] || [];
-
-		this.off(eventType, handler);
-
-		this._subscribers[eventType].push(handler);
+		this._subscribers[eventType] = this._subscribers[eventType] || new Set();
+		this._subscribers[eventType].add(handler);
 	}
 
 	off(eventType: string, handler: Function) {
 		if (this._subscribers[eventType]) {
-			this._subscribers[eventType] = this._subscribers[eventType]
-				.filter(fn => fn !== handler);
+			this._subscribers[eventType].delete(handler);
 		}
 	}
 

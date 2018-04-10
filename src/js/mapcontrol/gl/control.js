@@ -36,6 +36,10 @@ export class Control {
 	_detailLevel: number;
 	_offset: Vec2;
 
+	static create(canvas: HTMLCanvasElement) {
+		return new Control(canvas);
+	}
+
 	constructor(canvas: HTMLCanvasElement) {
 		if (canvas) {
 			const gl: ?WebGLRenderingContext = canvas.getContext('webgl');
@@ -46,10 +50,11 @@ export class Control {
 				const renderer = new Renderer(gl);
 				this._rotation = 0;
 
-				// startposition for testing
+				// start position for testing
 				this._detailLevel = 11;
+				// number of tile in a row on this detail level
 				const max = 2 ** this._detailLevel;
-				// const offset = [1024 * -SIZE, 674 * -SIZE];
+
 				this._offset = [(max / 2) * -SIZE, (max / 3) * -SIZE];
 
 				let tiles = [];
@@ -74,7 +79,7 @@ export class Control {
 				};
 
 				const renderTiles = () => {
-					gl.clear(gl.COLOR_BUFFER_BIT);
+					// gl.clear(gl.COLOR_BUFFER_BIT);
 					tiles.forEach(renderTile);
 				};
 
@@ -87,7 +92,6 @@ export class Control {
 						if (!loading[key]) {
 							loading[key] = true;
 
-							// $FlowFixMe
 							const worker = new TileRequestWorker();
 
 							worker.onmessage = (m) => {

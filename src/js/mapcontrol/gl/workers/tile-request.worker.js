@@ -1,29 +1,29 @@
 // @flow
 
 import axios from 'axios';
-import Protobuf from 'pbf';
-import { VectorTile } from 'vector-tile';
+import ProtoBuf from 'pbf';
+import { VectorTile } from './vectortile/vectortile';
 import { triangulate, triangulateLine } from '../tessellate';
 import styles from '../styles';
 
-const token = 'pk.eyJ1IjoiamFhcGwiLCJhIjoiY2l0MTc3c2FxMDA4bDJ1bW51bmpxc2RjbiJ9.KVBQzk0n4K_elY2XJ1jSWQ';
+import type { VectorTileLayer } from './vectortile/vectortilelayer';
 
+declare var self: DedicatedWorkerGlobalScope;
+
+const token = 'pk.eyJ1IjoiamFhcGwiLCJhIjoiY2l0MTc3c2FxMDA4bDJ1bW51bmpxc2RjbiJ9.KVBQzk0n4K_elY2XJ1jSWQ';
 const template = `https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v7/{z}/{x}/{y}.vector.pbf?access_token=${token}`;
 
 function makeUrl([x, y, z]) {
-	return template
-		.replace('{x}', x.toString())
-		.replace('{y}', y.toString())
-		.replace('{z}', z.toString());
+	return template.replace('{x}', x).replace('{y}', y).replace('{z}', z);
 }
 
-const layerToContoures = (layer, cls) => {
+const layerToContours = (layer: VectorTileLayer, classes: Array<string>) => {
 	let c = [];
 
 	for (let i = 0; i < layer.length; i += 1) {
 		const f = layer.feature(i);
 
-		if (!cls || !cls.length || cls.includes(f.properties.class)) {
+		if (!classes || !classes.length || classes.includes(f.properties.class)) {
 			c = c.concat(f.loadGeometry());
 		}
 	}
@@ -31,7 +31,7 @@ const layerToContoures = (layer, cls) => {
 	return c;
 };
 
-onmessage = function onmessage(e) {
+self.onmessage = function onmessage(e: { data: Object }) {
 	const { pos } = e.data;
 	const url = makeUrl(pos);
 	const options = { responseType: 'arraybuffer' };
@@ -40,12 +40,11 @@ onmessage = function onmessage(e) {
 		const data = {
 			pos,
 			layers: styles.reduce((acc, s) => {
-				const vt = new VectorTile(new Protobuf(response.data));
-				const l = (vt).layers[s.layer];
+				const vt = new VectorTile(new ProtoBuf(response.data));
+				const l = vt.layers[s.layer];
 
 				if (l) {
-					const contours = layerToContoures(l, s.subclass)
-						.map(c => c.map(p => [p.x, p.y]));
+					const contours = layerToContours(l, s.subclass);
 
 					const tri = s.type === 'fill'
 						? triangulate(contours)
@@ -53,12 +52,8 @@ onmessage = function onmessage(e) {
 
 					return acc.concat([{
 						id: s.id,
-						locations: tri
-							? new Float32Array(tri.triangleLocations)
-							: [],
-						indices: tri
-							? new Uint16Array(tri.triangleIndices)
-							: [],
+						locations: new Float32Array(tri ? tri.triangleLocations : []),
+						indices: new Uint16Array(tri ? tri.triangleIndices : []),
 						color: s.color,
 						depth: s.depth,
 						pos
@@ -68,7 +63,7 @@ onmessage = function onmessage(e) {
 				return acc;
 			}, [])
 		};
-		// $FlowFixMe
-		postMessage({ data });
+
+		self.postMessage({ data });
 	});
 };

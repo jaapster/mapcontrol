@@ -4,7 +4,7 @@ import { Control } from '../../mapcontrol/gl/control';
 
 export class MapControl extends React.Component<any> {
 	componentDidMount() {
-		new Control(this._canvas);
+		Control.create(this._canvas);
 	}
 
 	_canvas: ?HTMLCanvasElement;

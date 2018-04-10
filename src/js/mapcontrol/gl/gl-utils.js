@@ -38,7 +38,7 @@ export function loadShader(
 export function createProgram(
 	gl: WebGLRenderingContext,
 	shaders: WebGLShader[],
-	optAttribs: ?string[],
+	optAttributes: ?string[],
 	optLocations: ?number[],
 	optErrorCallback: ?Function
 ): WebGLProgram {
@@ -49,12 +49,12 @@ export function createProgram(
 		gl.attachShader(program, shader);
 	});
 
-	if (optAttribs) {
-		optAttribs.forEach((attrib, ndx) => {
+	if (optAttributes) {
+		optAttributes.forEach((attribute, ndx) => {
 			gl.bindAttribLocation(
 				program,
 				optLocations ? optLocations[ndx] : ndx,
-				attrib
+				attribute
 			);
 		});
 	}
@@ -79,7 +79,7 @@ export function createProgram(
 export function createProgramFromSources(
 	gl: WebGLRenderingContext,
 	shaderSources: string[],
-	optAttribs: ?string[],
+	optAttributes: ?string[],
 	optLocations: ?number[],
 	optErrorCallback: ?Function
 ): WebGLProgram {
@@ -88,11 +88,10 @@ export function createProgramFromSources(
 	// assumed order is [vertextShaderSource, fragmentShaderSource];
 	shaderSources.forEach((source, i) => {
 		const type = i === 0 ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER;
-
 		shaders.push(loadShader(gl, source, type, optErrorCallback));
 	});
 
-	return createProgram(gl, shaders, optAttribs, optLocations, optErrorCallback);
+	return createProgram(gl, shaders, optAttributes, optLocations, optErrorCallback);
 }
 
 /**
@@ -192,11 +191,11 @@ export function createUniformSetters(
 			}
 
 			if (_bindPoint) {
-				return ((bindPoint, unts) => (
+				return ((bindPoint, _units) => (
 					(textures) => {
-						gl.uniform1iv(location, unts);
+						gl.uniform1iv(location, _units);
 						textures.forEach((texture, index) => {
-							gl.activeTexture(gl.TEXTURE0 + unts[index]);
+							gl.activeTexture(gl.TEXTURE0 + _units[index]);
 							gl.bindTexture(bindPoint, texture);
 						});
 					}
@@ -239,8 +238,8 @@ export function createUniformSetters(
 		if (name.substr(-3) === '[0]') {
 			name = name.substr(0, name.length - 3);
 		}
-		const setter = createUniformSetter(program, uniformInfo);
-		uniformSetters[name] = setter;
+
+		uniformSetters[name] = createUniformSetter(program, uniformInfo);
 	}
 	return uniformSetters;
 }
@@ -256,9 +255,9 @@ export function setUniforms(setters: Setters, values: Dictionary<any>) {
 }
 
 export function createAttributeSetters(gl: WebGLRenderingContext, program: WebGLProgram) {
-	const attribSetters = {};
+	const attributeSetters = {};
 
-	const createAttribSetter = index => (
+	const createAttributeSetter = index => (
 		(b) => {
 			gl.bindBuffer(gl.ARRAY_BUFFER, b.buffer);
 			gl.enableVertexAttribArray(index);
@@ -266,18 +265,18 @@ export function createAttributeSetters(gl: WebGLRenderingContext, program: WebGL
 		}
 	);
 
-	const numAttribs = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
+	const numAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
 
-	for (let i = 0; i < numAttribs; ++i) {
-		const attribInfo = gl.getActiveAttrib(program, i);
-		if (!attribInfo) {
+	for (let i = 0; i < numAttributes; ++i) {
+		const attributeInfo = gl.getActiveAttrib(program, i);
+		if (!attributeInfo) {
 			break;
 		}
-		const index = gl.getAttribLocation(program, attribInfo.name);
-		attribSetters[attribInfo.name] = createAttribSetter(index);
+		const index = gl.getAttribLocation(program, attributeInfo.name);
+		attributeSetters[attributeInfo.name] = createAttributeSetter(index);
 	}
 
-	return attribSetters;
+	return attributeSetters;
 }
 
 export function setAttributes(setters: Setters, values: Dictionary<any>) {
@@ -293,11 +292,11 @@ export function setAttributes(setters: Setters, values: Dictionary<any>) {
 export function createProgramInfo(
 	gl: WebGLRenderingContext,
 	shaderSources: string[],
-	optAttribs: ?string[],
+	optAttributes: ?string[],
 	optLocations: ?number[],
 	optErrorCallback: ?Function
 ): ProgramInfo {
-	const program = createProgramFromSources(gl, shaderSources, optAttribs, optLocations, optErrorCallback);
+	const program = createProgramFromSources(gl, shaderSources, optAttributes, optLocations, optErrorCallback);
 
 	if (!program) {
 		throw new Error('Unable to create WebGLProgram');
