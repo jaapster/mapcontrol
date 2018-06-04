@@ -23,13 +23,7 @@ export type Mat3 = [
 	number, number, number
 ];
 
-// export interface Renderer {
-// 	draw(vertices: Array<number>, offset: Vec4, depth: number, color: Vec4): void
-// }
-
-export type Contours = number[][];
-
-export type TessalationResult = {
+export type Tessalation = {
 	triangleLocations: Array<number>,
 	triangleIndices: Array<number>
 };

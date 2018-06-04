@@ -55,24 +55,24 @@ export default [
 		depth: 0.1,
 		width: 20
 	},
-	// {
-	// 	type: 'line',
-	// 	id: 'road',
-	// 	layer: 'road',
-	// 	subclass: ['primary'],
-	// 	color: rgbToDec(255, 200, 0),
-	// 	depth: 0.011,
-	// 	width: 6
-	// },
-	// {
-	// 	type: 'line',
-	// 	id: 'road',
-	// 	layer: 'road',
-	// 	subclass: ['secondary', 'tertiary'],
-	// 	color: rgbToDec(255, 200, 0),
-	// 	depth: 0.03,
-	// 	width: 4
-	// },
+	{
+		type: 'line',
+		id: 'road',
+		layer: 'road',
+		subclass: ['primary'],
+		color: rgbToDec(255, 200, 0),
+		depth: 0.011,
+		width: 6
+	},
+	{
+		type: 'line',
+		id: 'road',
+		layer: 'road',
+		subclass: ['secondary', 'tertiary'],
+		color: rgbToDec(255, 200, 0),
+		depth: 0.03,
+		width: 4
+	},
 	{
 		type: 'fill',
 		id: 'building',

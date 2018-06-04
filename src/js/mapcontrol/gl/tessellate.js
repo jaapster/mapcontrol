@@ -2,7 +2,9 @@
 
 import T from 'tesspathy';
 
-import type { Contours, TessalationResult } from './type';
+import type { Tessalation } from './type';
+
+export type Contours = number[][];
 
 const S = [T.PATH_START];
 const A = [T.PATH_ANCHOR];
@@ -14,12 +16,12 @@ const prepare = (c: Contours = []) => (
 	]), [[], []])
 );
 
-export const triangulate = (c: Contours): TessalationResult => {
+export const triangulate = (c: Contours): Tessalation => {
 	const [loc, lab] = prepare(c);
 	return T.triangulate(loc, lab);
 };
 
-export const triangulateLine = (c: Contours, width: number): TessalationResult => {
+export const triangulateLine = (c: Contours, width: number): Tessalation => {
 	const [loc, lab] = prepare(c);
 	return T.triangulateLine(loc, lab, { width });
 };

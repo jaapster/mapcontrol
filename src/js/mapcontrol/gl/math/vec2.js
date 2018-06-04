@@ -38,10 +38,31 @@ export const vec2 = {
 		];
 	},
 
-	add([x1, y1]: Vec2, [x2, y2]: Vec2): Vec2 {
+	add([x, y]: Vec2, f: Vec2 | number): Vec2 {
+		if (typeof f === 'number') {
+			return [
+				x / f,
+				y / f
+			];
+		}
+
 		return [
-			x1 + x2,
-			y1 + y2
+			x + f[0],
+			y + f[1]
+		];
+	},
+
+	sub([x, y]: Vec2, f: Vec2 | number): Vec2 {
+		if (typeof f === 'number') {
+			return [
+				x / f,
+				y / f
+			];
+		}
+
+		return [
+			x - f[0],
+			y - f[1]
 		];
 	}
 };

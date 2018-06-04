@@ -1,7 +1,9 @@
 // @flow
+
 import { Renderer } from './renderer';
 import { Draggable } from './draggable';
 import { vec2 } from './math/vec2';
+
 import TileRequestWorker from './workers/tile-request.worker';
 
 import type { Vec2 } from './type';
@@ -11,25 +13,33 @@ const FULL_ROTATION = Math.PI * 2;
 
 const makeKey = ([x, y, z]) => `${x}_${y}_${z}`;
 
-const findTiles = (offset, depth) => {
+const findTiles = (offset, depth, box = { width: 1024, height: 1024 }) => {
+	const { width, height } = box;
+
+	const numHorizontal = Math.ceil(width / SIZE) + 1;
+	const numVertical = Math.ceil(height / SIZE) + 1;
+
 	const [x, y] = [
 		Math.floor(Math.abs(offset[0]) / SIZE),
 		Math.floor(Math.abs(offset[1]) / SIZE)
 	];
-	return [
-		[x + 0, y + 0, depth],
-		[x + 1, y + 0, depth],
-		[x + 2, y + 0, depth],
-		[x + 0, y + 1, depth],
-		[x + 1, y + 1, depth],
-		[x + 2, y + 1, depth],
-		[x + 0, y + 2, depth],
-		[x + 1, y + 2, depth],
-		[x + 2, y + 2, depth]
-	];
+
+	const t = [];
+
+	for (let i = 0; i < numVertical; i += 1) {
+		for (let j = 0; j < numHorizontal; j += 1) {
+			t.push([x + j, y + i, depth]);
+		}
+	}
+
+	return t;
 };
 
 const same = (a, b) => a[0] === b[0] && a[1] === b[1];
+
+const updateOffset = (offset, referencePoint, factor) => (
+	vec2.add(vec2.mult(vec2.mult(referencePoint, (2 ** factor)), -1), vec2.add(referencePoint, offset))
+);
 
 export class Control {
 	_rotation: number;
@@ -52,6 +62,7 @@ export class Control {
 
 				// start position for testing
 				this._detailLevel = 11;
+
 				// number of tile in a row on this detail level
 				const max = 2 ** this._detailLevel;
 
@@ -131,22 +142,19 @@ export class Control {
 					renderTiles();
 				});
 
-				draggable.on('wheel', (e) => {
-					if (e.deltaY < 0) {
-						this._detailLevel += 1;
-						this._offset = vec2.mult(this._offset, 2);
-					} else {
-						this._detailLevel -= 1;
-						this._offset = vec2.div(this._offset, 2);
-					}
+				canvas.addEventListener('dblclick', (e) => {
+					const pos = vec2.add(vec2.mult(this._offset, -1), [e.clientX, e.clientY]);
+					const factor = e.shiftKey ? -1 : 1;
+
+					this._detailLevel += factor;
+					this._offset = updateOffset(this._offset, pos, factor);
 
 					tiles = [];
-					const p = findTiles(this._offset, this._detailLevel);
-					p.forEach(loadTile);
+					findTiles(this._offset, this._detailLevel).forEach(loadTile);
 				});
 
-				const startPos = findTiles(this._offset, this._detailLevel);
-				startPos.forEach(loadTile);
+				// initial tile load
+				findTiles(this._offset, this._detailLevel).forEach(loadTile);
 			}
 		}
 	}
