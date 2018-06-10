@@ -1,11 +1,16 @@
 // @flow
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { App } from './components/cp-app-gl';
+import { Control } from '../mapcontrol/gl/control';
 
-const app = document.getElementById('app');
+const _canvas = document.createElement('canvas');
 
-if (app) {
-	ReactDOM.render(<App />, app);
-}
+const body = document.body;
+
+if (body) body.appendChild(_canvas);
+
+_canvas.width = 2048;
+_canvas.height = 1024;
+
+const control = Control.create(_canvas);
+
+console.log(control._rotation); // todo: remove

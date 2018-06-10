@@ -1,12 +1,10 @@
 const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
 	entry: {
 		main: [
 			'@babel/polyfill',
-			'./src/js/client/index.js',
-			'./src/scss/index.scss'
+			'./src/js/client/index.js'
 		]
 	},
 
@@ -21,7 +19,7 @@ module.exports = {
 	},
 
 	resolve: {
-		extensions: ['.js', '.jsx'],
+		extensions: ['.js'],
 		modules: [
 			'src',
 			'node_modules'
@@ -40,53 +38,18 @@ module.exports = {
 			},
 			{
 
-				test: /\.(js|jsx)?$/,
+				test: /\.(js)?$/,
 				include: [path.join(__dirname, 'src')],
 				exclude: /(node_modules)/,
 				use: [
 					{
 						loader: 'babel-loader',
 						options: {
-							presets: ['@babel/react', '@babel/flow', ['@babel/stage-0', { decoratorsLegacy: true }]]
-						}
-					}
-				]
-			},
-			{
-				test: /\.scss$/,
-				exclude: '/node_modules/',
-
-				use: [
-					MiniCssExtractPlugin.loader,
-					{
-						loader: 'css-loader',
-						options: {
-							sourceMap: true
-						}
-					},
-					{
-						loader: 'postcss-loader',
-						options: {
-							sourceMap: true
-						}
-					},
-					{
-						loader: 'sass-loader',
-						options: {
-							sourceMap: true,
-							includePaths: [path.resolve('./src/js/components')],
-							outFile: 'bla'
+							presets: ['@babel/flow', ['@babel/stage-0', { decoratorsLegacy: true }]]
 						}
 					}
 				]
 			}
 		]
-	},
-
-	plugins: [
-		new MiniCssExtractPlugin({
-			filename: '[name]/[name].css',
-			allChunks: true
-		})
-	]
+	}
 };

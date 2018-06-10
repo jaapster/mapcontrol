@@ -1,6 +1,5 @@
-[version]
-0.63.1
 
 [options]
 include_warnings=true
 esproposal.decorators=ignore
+munge_underscores=true

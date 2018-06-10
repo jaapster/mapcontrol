@@ -1,7 +1,6 @@
 {
   "parser": "babel-eslint",
-  "extends": "airbnb",
-  "plugins": ["babel", "react"],
+  "plugins": ["babel"],
 
   "env": {
     "browser": true,
@@ -16,11 +15,6 @@
     "max-len": 0,
     "no-console": 0,
     "indent": ["error", "tab", { "SwitchCase": 1 }],
-    "react/jsx-indent": ["error", "tab"],
-    "react/jsx-indent-props": ["error", "tab"],
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
-    "react/prop-types": 0,
-    "react/require-default-props": 0,
     "jsx-a11y/show-errors": 0,
     "import/prefer-default-export": 0,
     "import/first": 0,

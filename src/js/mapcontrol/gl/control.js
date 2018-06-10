@@ -13,7 +13,7 @@ const FULL_ROTATION = Math.PI * 2;
 
 const makeKey = ([x, y, z]) => `${x}_${y}_${z}`;
 
-const findTiles = (offset, depth, box = { width: 1024, height: 1024 }) => {
+const findTiles = (offset, depth, box = { width: 2048, height: 1024 }) => {
 	const { width, height } = box;
 
 	const numHorizontal = Math.ceil(width / SIZE) + 1;
@@ -103,6 +103,7 @@ export class Control {
 						if (!loading[key]) {
 							loading[key] = true;
 
+							// $FlowFixMe
 							const worker = new TileRequestWorker();
 
 							worker.onmessage = (m) => {
@@ -142,7 +143,7 @@ export class Control {
 					renderTiles();
 				});
 
-				canvas.addEventListener('dblclick', (e) => {
+				canvas.addEventListener('dblclick', (e: MouseEvent) => {
 					const pos = vec2.add(vec2.mult(this._offset, -1), [e.clientX, e.clientY]);
 					const factor = e.shiftKey ? -1 : 1;
 
