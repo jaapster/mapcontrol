@@ -257,13 +257,11 @@ export function setUniforms(setters: Setters, values: Dictionary<any>) {
 export function createAttributeSetters(gl: WebGLRenderingContext, program: WebGLProgram) {
 	const attributeSetters = {};
 
-	const createAttributeSetter = index => (
-		(b) => {
-			gl.bindBuffer(gl.ARRAY_BUFFER, b.buffer);
-			gl.enableVertexAttribArray(index);
-			gl.vertexAttribPointer(index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0);
-		}
-	);
+	const createAttributeSetter = index => (b) => {
+		gl.bindBuffer(gl.ARRAY_BUFFER, b.buffer);
+		gl.enableVertexAttribArray(index);
+		gl.vertexAttribPointer(index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0);
+	};
 
 	const numAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
 

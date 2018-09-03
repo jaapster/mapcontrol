@@ -3,7 +3,9 @@
 import * as utils from './gl-utils';
 import { mat3 } from './math/mat3';
 
+// $FlowFixMe
 import vsSrc from './shaders/vertex-shader.glsl';
+// $FlowFixMe
 import fsSrc from './shaders/fragment-shader.glsl';
 
 import type { ProgramInfo, DrawInfo } from './type';

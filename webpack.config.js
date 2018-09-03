@@ -45,7 +45,37 @@ module.exports = {
 					{
 						loader: 'babel-loader',
 						options: {
-							presets: ['@babel/flow', ['@babel/stage-0', { decoratorsLegacy: true }]]
+							presets: [
+								'@babel/flow',
+								[
+									"@babel/preset-env",
+									{
+										"targets": {
+											"browsers": [
+												"last 2 versions"
+											]
+										}
+									}
+								]
+							],
+							plugins: [
+								"@babel/plugin-syntax-dynamic-import",
+								[
+									"@babel/plugin-proposal-decorators",
+									{
+										"legacy": true
+									}
+								],
+								[
+									"@babel/plugin-proposal-pipeline-operator",
+									{
+										"proposal": "minimal"
+									}
+								],
+								"@babel/plugin-proposal-class-properties",
+								"@babel/plugin-proposal-optional-chaining",
+								"@babel/plugin-proposal-nullish-coalescing-operator"
+							]
 						}
 					}
 				]

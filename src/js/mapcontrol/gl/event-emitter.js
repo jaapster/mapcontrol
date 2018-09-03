@@ -1,7 +1,7 @@
 // @flow
 
 export class EventEmitter {
-	_subscribers: { [string]: Set } = {};
+	_subscribers: { [string]: Set<Function> } = {};
 
 	on(eventType: string, handler: Function) {
 		this._subscribers[eventType] = this._subscribers[eventType] || new Set();
