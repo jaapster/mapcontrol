@@ -1,4 +1,4 @@
-import type { Vec4 } from '../../mapcontrol/gl/type';
+import type { Vec4 } from '../types/type';
 
 const rgbToDec = (r: number, g: number, b: number): Vec4 => (
 	[r / 255, g / 255, b / 255, 1]

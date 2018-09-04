@@ -1,3 +1,5 @@
+// @flow
+
 import { EventEmitter } from './event-emitter';
 
 export class Draggable extends EventEmitter {
@@ -20,6 +22,6 @@ export class Draggable extends EventEmitter {
 			}
 		});
 
-		element.addEventListener('wheel', e => this.trigger('wheel', e));
+		element.addEventListener('wheel', (e: MouseEvent) => this.trigger('wheel', e));
 	}
 }

@@ -1,3 +1,5 @@
+// @flow
+
 import { VectorTileFeature } from './vectortilefeature';
 
 function processTag(tag, pbf) {
@@ -35,7 +37,17 @@ function readLayer(tag, layer, pbf) {
 }
 
 export class VectorTileLayer {
-	constructor(pbf, end) {
+	version: number;
+	name: ?string;
+	extent: number;
+	length: number;
+
+	_pbf: any;
+	_keys: Array<any>;
+	_values: Array<any>;
+	_features: Array<VectorTileFeature>;
+
+	constructor(pbf: any, end: number) {
 		this.version = 1;
 		this.name = null;
 		this.extent = 4096;
@@ -51,7 +63,7 @@ export class VectorTileLayer {
 		this.length = this._features.length;
 	}
 
-	feature(i) {
+	feature(i: number) {
 		if (i < 0 || i >= this._features.length) throw new Error('feature index out of bounds');
 
 		this._pbf.pos = this._features[i];

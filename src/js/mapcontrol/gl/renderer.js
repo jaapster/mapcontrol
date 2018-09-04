@@ -1,6 +1,6 @@
 // @flow
 
-import * as utils from './gl-utils';
+import * as utils from './utils/gl-utils';
 import { mat3 } from './math/mat3';
 
 // $FlowFixMe
@@ -8,7 +8,7 @@ import vsSrc from './shaders/vertex-shader.glsl';
 // $FlowFixMe
 import fsSrc from './shaders/fragment-shader.glsl';
 
-import type { ProgramInfo, DrawInfo } from './type';
+import type { ProgramInfo, DrawInfo } from './types/type';
 
 export class Renderer {
 	_gl: WebGLRenderingContext;

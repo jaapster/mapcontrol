@@ -6,7 +6,7 @@ import { vec2 } from './math/vec2';
 
 import TileRequestWorker from './workers/tile-request.worker';
 
-import type { Vec2 } from './type';
+import type { Vec2 } from './types/type';
 
 const SIZE = 512;
 const FULL_ROTATION = Math.PI * 2;
@@ -121,13 +121,15 @@ export class Control {
 
 				draggable.on('drag', (d) => {
 					if (!d.alt) {
-						const ox = Math.floor(this._offset[0] / SIZE);
-						const oy = Math.floor(this._offset[1] / SIZE);
-						const nx = Math.floor((this._offset[0] + d.x) / SIZE);
-						const ny = Math.floor((this._offset[1] + d.y) / SIZE);
+						const [x, y] = this._offset;
+
+						const ox = Math.floor(x / SIZE);
+						const oy = Math.floor(y / SIZE);
+						const nx = Math.floor((x + d.x) / SIZE);
+						const ny = Math.floor((y + d.y) / SIZE);
 
 						if (ox !== nx || oy !== ny) {
-							const p = findTiles([this._offset[0] + d.x, this._offset[1] + d.y], this._detailLevel);
+							const p = findTiles([x + d.x, y + d.y], this._detailLevel);
 							tiles = tiles.filter(a => p.find(b => same(a.pos, b)));
 							p.forEach(loadTile);
 						}

@@ -1,6 +1,6 @@
 // @flow
 
-import type { Vec2 } from '../type';
+import type { Vec2 } from '../types/type';
 
 export const vec2 = {
 	rotate([x, y]: Vec2, rad: number): Vec2 {

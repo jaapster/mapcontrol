@@ -1,6 +1,6 @@
 // @flow
 
-import type { Mat3 } from '../type';
+import type { Mat3 } from '../types/type';
 
 export const mat3 = {
 	translation(x: number, y: number): Mat3 {

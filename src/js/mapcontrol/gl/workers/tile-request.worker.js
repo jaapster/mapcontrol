@@ -3,8 +3,8 @@
 import axios from 'axios';
 import ProtoBuf from 'pbf';
 import { VectorTile } from './vectortile/vectortile';
-import { triangulate, triangulateLine } from '../tessellate';
-import styles from '../styles';
+import { triangulate, triangulateLine } from './tessellate';
+import styles from './styles';
 
 import type { VectorTileLayer } from './vectortile/vectortilelayer';
 

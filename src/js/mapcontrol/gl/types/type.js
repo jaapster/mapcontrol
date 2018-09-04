@@ -25,7 +25,7 @@ export type Mat3 = [
 
 export type Contours = Array<Array<number>>;
 
-export type Tesselation = {
+export type Tessellation = {
 	triangleLocations: Array<number>,
 	triangleIndices: Array<number>
 };

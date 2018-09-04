@@ -1,3 +1,5 @@
+// @flow
+
 import { VectorTileLayer } from './vectortilelayer';
 
 function readTile(tag, layers, pbf) {
@@ -8,7 +10,9 @@ function readTile(tag, layers, pbf) {
 }
 
 export class VectorTile {
-	constructor(pbf, end) {
+	layers: Array<any>;
+
+	constructor(pbf: any, end?: number) {
 		this.layers = pbf.readFields(readTile, {}, end);
 	}
 }

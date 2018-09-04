@@ -1,8 +1,8 @@
 // @flow
 
-import { error } from './log';
+import type { Dictionary, ProgramInfo, Setters } from '../types/type';
 
-import type { Dictionary, ProgramInfo, Setters } from './type';
+const error = (...args) => console.log(...args);
 
 export function loadShader(
 	gl: WebGLRenderingContext,
